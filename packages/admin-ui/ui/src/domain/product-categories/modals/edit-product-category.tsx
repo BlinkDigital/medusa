@@ -13,6 +13,8 @@ import useNotification from "../../../hooks/use-notification"
 import { Option } from "../../../types/shared"
 import { getErrorMessage } from "../../../utils/error-messages"
 import TreeCrumbs from "../components/tree-crumbs"
+import FileUploadField from '../../../components/atoms/file-upload-field'
+import Medusa from '../../../services/api'
 
 const visibilityOptions: Option[] = [
   {
@@ -47,6 +49,28 @@ function EditProductCategoriesSideModal(
   const [isActive, setIsActive] = useState(true)
   const [isPublic, setIsPublic] = useState(true)
 
+  console.log(activeCategory, typeof activeCategory)
+
+  const [image, setImage] = useState<null | {[key: string]: any}>(null)
+
+  console.log(image, )
+
+  const handleFilesChosen = (files: File[]) => {
+    if (files.length) {
+      const toAppend = {
+        url: URL.createObjectURL(files[0]),
+        name: files[0].name,
+        size: files[0].size,
+        nativeFile: files[0],
+        selected: false,
+      }
+
+      console.log(toAppend)
+
+      setImage(toAppend)
+    }
+  }
+
   const notification = useNotification()
 
   const { mutateAsync: updateCategory } = useAdminUpdateProductCategory(
@@ -60,15 +84,34 @@ function EditProductCategoriesSideModal(
       setDescription(activeCategory.description)
       setIsActive(activeCategory.is_active)
       setIsPublic(!activeCategory.is_internal)
+      if ((activeCategory as ProductCategory & { image: string | null })?.image) {
+        setImage({
+          url: (activeCategory as ProductCategory & { image: string | null })?.image,
+          name: "",
+          size: 0,
+          nativeFile: null,
+          selected: false,
+        })
+      }
     }
   }, [activeCategory])
 
   const onSave = async () => {
     try {
+      let uploadedImage;
+      if (image) {
+        const uploadedImage = await Medusa.uploads
+        .create([image.nativeFile])
+        .then(({ data }) => data.uploads[0])
+        console.log(uploadedImage)
+      }
+
+
       await updateCategory({
         name,
         handle,
         description,
+        image: uploadedImage ? uploadedImage.url : null,
         is_active: isActive,
         is_internal: !isPublic,
       })
@@ -157,6 +200,32 @@ function EditProductCategoriesSideModal(
             value={visibilityOptions[isPublic ? 0 : 1]}
             onChange={(o) => setIsPublic(o.value === "public")}
           />
+
+
+          <h4 className="inter-large-semibold text-grey-90 pb-1">Category image</h4>
+          <div className="flex">
+            <div className="flex-1">
+              { !image &&
+                  <FileUploadField
+                      onFileChosen={handleFilesChosen}
+                      placeholder="up to 10MB each"
+                      filetypes={["image/gif", "image/jpeg", "image/png", "image/webp"]}
+                      className="py-large"
+                  />
+              }
+              {image && (
+                <div className="mt-large w-100">
+                  <div className="gap-y-2xsmall flex flex-col relative w-100">
+                    <img src={image.url} />
+                    <Button style={{position: 'absolute', right: 0, borderTopLeftRadius: 0, borderTopRightRadius: 0, borderBottomRightRadius: 0}}
+                            size="small" variant="danger" onClick={() => setImage(null)}>
+                      <CrossIcon size={20} />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* === DIVIDER === */}

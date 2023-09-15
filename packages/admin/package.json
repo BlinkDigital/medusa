@@ -27,7 +27,7 @@
     "directory": "packages/admin"
   },
   "dependencies": {
-    "@medusajs/admin-ui": "^2.0.2",
+    "@medusajs/admin-ui": "file:../admin-ui",
     "@medusajs/ui": "^1.0.0",
     "@medusajs/ui-preset": "^1.0.0",
     "@rollup/plugin-alias": "5.0.0",

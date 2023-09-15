@@ -30,7 +30,8 @@ export type EditFlowVariantFormType = {
   }[]
   customs: CustomsFormType
   dimensions: DimensionsFormType
-  metadata: MetadataFormType
+  metadata: MetadataFormType,
+  custom_attributes: MetadataFormType
 }
 
 type Props = {
@@ -126,6 +127,12 @@ const EditFlowVariantForm = ({ form, isEdit }: Props) => {
             <CustomsForm form={nestedForm(form, "customs")} />
           </div>
         )}
+      </Accordion.Item>
+      <Accordion.Item title="Custom Attributes" value="custom_attributes">
+        <p className="inter-base-regular text-grey-50 mb-base">
+          Will be displayed as additional product information.
+        </p>
+        <MetadataForm form={nestedForm(form, "custom_attributes")} />
       </Accordion.Item>
       <Accordion.Item title="Metadata" value="metadata">
         <p className="inter-base-regular text-grey-50 mb-base">

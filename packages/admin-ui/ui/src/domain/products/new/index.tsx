@@ -41,6 +41,12 @@ import { useFeatureFlag } from "../../../providers/feature-flag-provider"
 import { getErrorMessage } from "../../../utils/error-messages"
 import { prepareImages } from "../../../utils/images"
 import { nestedForm } from "../../../utils/nested-form"
+import MetadataForm, {
+  getMetadataFormValues,
+  getSubmittableMetadata,
+  MetadataFormType
+} from '../../../components/forms/general/metadata-form'
+
 
 type NewProductForm = {
   general: GeneralFormType
@@ -49,6 +55,7 @@ type NewProductForm = {
   variants: AddVariantsFormType
   customs: CustomsFormType
   dimensions: DimensionsFormType
+  custom_attributes: MetadataFormType
   thumbnail: ThumbnailFormType
   media: MediaFormType
   salesChannels: AddSalesChannelsFormType
@@ -324,6 +331,14 @@ const NewProduct = ({ onClose }: Props) => {
                   <CustomsForm form={nestedForm(form, "customs")} />
                 </div>
               </Accordion.Item>
+              <Accordion.Item title="Custom Attributes" value="custom_attributes">
+                <p className="inter-base-regular text-grey-50">
+                  Will be displayed as additional product information.
+                </p>
+                <div className="my-xlarge">
+                  <MetadataForm form={nestedForm(form, "custom_attributes")} />
+                </div>
+              </Accordion.Item>
               <Accordion.Item title="Thumbnail" value="thumbnail">
                 <p className="inter-base-regular mb-large text-grey-50">
                   Used to represent your product during checkout, social sharing
@@ -350,7 +365,7 @@ const createPayload = (
   publish = true,
   salesChannelsEnabled = false
 ): AdminPostProductsReq => {
-  const payload: AdminPostProductsReq = {
+  const payload: AdminPostProductsReq & { custom_attributes?: Record<string, any> | null } = {
     title: data.general.title,
     subtitle: data.general.subtitle || undefined,
     material: data.general.material || undefined,
@@ -383,6 +398,7 @@ const createPayload = (
     options: data.variants.options.map((o) => ({
       title: o.title,
     })),
+    custom_attributes: getSubmittableMetadata(data.custom_attributes),
     variants: data.variants.entries.map((v) => ({
       title: v.general.title!,
       material: v.general.material || undefined,
@@ -404,6 +420,7 @@ const createPayload = (
       mid_code: v.customs.mid_code || undefined,
       origin_country: v.customs.origin_country?.value || undefined,
       manage_inventory: v.stock.manage_inventory,
+      custom_attributes: getSubmittableMetadata(v.custom_attributes),
     })),
     // @ts-ignore
     status: publish ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
@@ -438,6 +455,7 @@ const createBlank = (): NewProductForm => {
       weight: null,
       width: null,
     },
+    custom_attributes: getMetadataFormValues(),
     discounted: {
       value: true,
     },

@@ -18,6 +18,7 @@ import TagDotIcon from "../../../components/fundamentals/icons/tag-dot-icon"
 import EyeOffIcon from "../../../components/fundamentals/icons/eye-off-icon"
 import MoreHorizontalIcon from "../../../components/fundamentals/icons/more-horizontal-icon"
 import useNotification from "../../../hooks/use-notification"
+import ImagePlaceholderIcon from '../../../components/fundamentals/icons/image-placeholder-icon'
 
 type ProductCategoryListItemDetailsProps = {
   depth: number
@@ -80,6 +81,7 @@ function ProductCategoryListItemDetails(
             <div className="ml-[20px] flex w-[32px] items-center justify-center">
               {hasChildren && <FolderOpenIcon color="#889096" size={18} />}
               {!hasChildren && <TagIcon color="#889096" size={18} />}
+              {item?.image && <ImagePlaceholderIcon color="#889096" size={18} />}
             </div>
             <span
               className={clsx("ml-2 select-none text-xs font-medium", {

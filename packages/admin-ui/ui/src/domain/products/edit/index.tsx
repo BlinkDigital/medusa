@@ -4,6 +4,7 @@ import BackButton from "../../../components/atoms/back-button"
 import Spinner from "../../../components/atoms/spinner"
 import WidgetContainer from "../../../components/extensions/widget-container"
 import ProductAttributesSection from "../../../components/organisms/product-attributes-section"
+import ProductCustomAttributesSection from "../../../components/organisms/product-custom-attributes-section"
 import ProductGeneralSection from "../../../components/organisms/product-general-section"
 import ProductMediaSection from "../../../components/organisms/product-media-section"
 import ProductRawSection from "../../../components/organisms/product-raw-section"
@@ -66,6 +67,7 @@ const Edit = () => {
             <ProductGeneralSection product={product} />
             <ProductVariantsSection product={product} />
             <ProductAttributesSection product={product} />
+            <ProductCustomAttributesSection product={product} />
             {getWidgets("product.details.after").map((w, i) => {
               return (
                 <WidgetContainer

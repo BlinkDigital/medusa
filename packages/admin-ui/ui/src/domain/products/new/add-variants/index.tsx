@@ -23,6 +23,7 @@ import { useDebounce } from "../../../../hooks/use-debounce"
 import useToggleState from "../../../../hooks/use-toggle-state"
 import { NestedForm } from "../../../../utils/nested-form"
 import NewVariant from "./new-variant"
+import { getMetadataFormValues, getSubmittableMetadata } from '../../../../components/forms/general/metadata-form'
 
 type ProductOptionType = {
   id: string
@@ -476,6 +477,7 @@ const createEmptyVariant = (
         option_id: option.id,
         option: null,
       })) || [],
+    custom_attributes: getMetadataFormValues(),
   }
 }
 

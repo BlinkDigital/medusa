@@ -10,7 +10,7 @@ import LayeredModal, {
 import { useMedusa } from "medusa-react"
 import { useForm } from "react-hook-form"
 import useEditProductActions from "../../../hooks/use-edit-product-actions"
-import { getSubmittableMetadata } from "../../forms/general/metadata-form"
+import { getMetadataFormValues, getSubmittableMetadata } from "../../forms/general/metadata-form"
 import Button from "../../fundamentals/button"
 import Modal from "../../molecules/modal"
 
@@ -166,6 +166,7 @@ const getDefaultValues = (product: Product): EditFlowVariantFormType => {
       entries: [],
       deleted: [],
     },
+    custom_attributes: getMetadataFormValues(),
   }
 }
 
@@ -204,6 +205,7 @@ export const createAddPayload = (
       option_id: option.id,
       value: option.value,
     })),
+    custom_attributes: getSubmittableMetadata(data.custom_attributes)
   }
 }
 

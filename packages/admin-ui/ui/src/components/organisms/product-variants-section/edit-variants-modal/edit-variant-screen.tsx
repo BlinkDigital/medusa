@@ -129,6 +129,7 @@ export const createUpdatePayload = (
       option_id: option.id,
       value: option.value,
     })),
+    custom_attributes: getSubmittableMetadata(data.custom_attributes)
   }
 }
 

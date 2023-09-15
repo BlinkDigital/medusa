@@ -231,3 +231,4 @@ const ModalActions = ({ number, onRemove, onDeselect }: ModalActionsProps) => {
 }
 
 export default MediaForm
+export { Image }

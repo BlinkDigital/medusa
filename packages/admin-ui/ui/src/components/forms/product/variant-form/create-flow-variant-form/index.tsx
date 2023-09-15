@@ -15,6 +15,7 @@ import VariantSelectOptionsForm, {
   VariantSelectOptionsFormType,
 } from "../variant-select-options-form"
 import VariantStockForm, { VariantStockFormType } from "../variant-stock-form"
+import MetadataForm, { MetadataFormType } from '../../../general/metadata-form'
 
 export type CreateFlowVariantFormType = {
   /**
@@ -27,6 +28,7 @@ export type CreateFlowVariantFormType = {
   options: VariantSelectOptionsFormType
   customs: CustomsFormType
   dimensions: DimensionsFormType
+  custom_attributes: MetadataFormType
 }
 
 type Props = {
@@ -102,6 +104,9 @@ const CreateFlowVariantForm = ({ form, options, onCreateOption }: Props) => {
           </p>
           <CustomsForm form={nestedForm(form, "customs")} />
         </div>
+      </Accordion.Item>
+      <Accordion.Item title="Custom Attributes" value="custom_attributes">
+        <MetadataForm form={nestedForm(form, "custom_attributes")} />
       </Accordion.Item>
     </Accordion>
   )

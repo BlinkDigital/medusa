@@ -16,6 +16,8 @@ import { NextSelect } from "../../../components/molecules/select/next-select"
 import useNotification from "../../../hooks/use-notification"
 import { getErrorMessage } from "../../../utils/error-messages"
 import TreeCrumbs from "../components/tree-crumbs"
+import FileUploadField from '../../../components/atoms/file-upload-field'
+import Medusa from '../../../services/api'
 
 const visibilityOptions = [
   {
@@ -49,14 +51,38 @@ function CreateProductCategory(props: CreateProductCategoryProps) {
   const [isActive, setIsActive] = useState(true)
   const [isPublic, setIsPublic] = useState(true)
 
+  const [image, setImage] = useState<null | {[key: string]; any}>(null)
+
+  const handleFilesChosen = (files: File[]) => {
+    if (files.length) {
+      const toAppend = {
+        url: URL.createObjectURL(files[0]),
+        name: files[0].name,
+        size: files[0].size,
+        nativeFile: files[0],
+        selected: false,
+      }
+
+      console.log(toAppend)
+
+      setImage(toAppend)
+    }
+  }
+
   const { mutateAsync: createProductCategory } = useAdminCreateProductCategory()
 
   const onSubmit = async () => {
     try {
+      const uploadedImage = await Medusa.uploads
+      .create([image.nativeFile])
+      .then(({ data }) => data.uploads[0])
+      console.log(uploadedImage)
+
       await createProductCategory({
         name,
         handle,
         description,
+        image: uploadedImage.url,
         is_active: isActive,
         is_internal: !isPublic,
         parent_category_id: parentCategory?.id ?? null,
@@ -162,6 +188,32 @@ function CreateProductCategory(props: CreateProductCategoryProps) {
                 value={visibilityOptions[isPublic ? 0 : 1]}
                 onChange={(o) => setIsPublic(o.value === "public")}
               />
+            </div>
+          </div>
+
+          <h4 className="inter-large-semibold text-grey-90 pb-1">Category image</h4>
+
+          <div className="mb-8 flex">
+            <div className="flex-1">
+              { !image &&
+              <FileUploadField
+                onFileChosen={handleFilesChosen}
+                placeholder="up to 10MB each"
+                filetypes={["image/gif", "image/jpeg", "image/png", "image/webp"]}
+                className="py-large"
+              />
+              }
+              {image && (
+                <div className="mt-large">
+                  <div className="gap-y-2xsmall flex flex-col relative">
+                    <img src={image.url} />
+                    <Button style={{position: 'absolute', right: 0, borderTopLeftRadius: 0, borderTopRightRadius: 0, borderBottomRightRadius: 0}}
+                            size="small" variant="danger" onClick={() => setImage(null)}>
+                      <CrossIcon size={20} />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

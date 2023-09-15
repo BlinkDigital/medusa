@@ -30,4 +30,4 @@ export default {
    * @deprecated use `import { wrapHandler } from "@medusajs/medusa"`
    */
   wrap,
-}
+} as any
