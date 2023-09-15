@@ -153,7 +153,7 @@ const EditVariantModal = ({
 }
 
 export const getEditVariantDefaultValues = (
-  variant: ProductVariant,
+  variant: ProductVariant & { custom_attributes?: Record<string, unknown> | null },
   product: Product
 ): EditFlowVariantFormType => {
   const options = product.options.map((option) => ({
@@ -211,6 +211,7 @@ export const getEditVariantDefaultValues = (
     },
     options,
     metadata: getMetadataFormValues(variant.metadata),
+    custom_attributes: getMetadataFormValues(variant.custom_attributes)
   }
 }
 

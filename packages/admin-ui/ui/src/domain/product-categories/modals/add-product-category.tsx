@@ -17,6 +17,9 @@ import { NextSelect } from "../../../components/molecules/select/next-select"
 import useNotification from "../../../hooks/use-notification"
 import { getErrorMessage } from "../../../utils/error-messages"
 import TreeCrumbs from "../components/tree-crumbs"
+import FileUploadField from '../../../components/atoms/file-upload-field'
+import Medusa from '../../../services/api'
+import { Option } from '../../../types/shared'
 
 const visibilityOptions = (t) => [
   {
@@ -29,6 +32,11 @@ const visibilityOptions = (t) => [
 const statusOptions = (t) => [
   { label: t("modals-active", "Active"), value: "active" },
   { label: t("modals-inactive", "Inactive"), value: "inactive" },
+]
+
+const showInMenuOptions = (t) => [
+  { label: t("show-in-menu-yes", "Yes"), value: "yes" },
+  { label: t("show-in-menu-no", "No"), value: "no" },
 ]
 
 type CreateProductCategoryProps = {
@@ -50,17 +58,46 @@ function CreateProductCategory(props: CreateProductCategoryProps) {
   const [description, setDescription] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [isPublic, setIsPublic] = useState(true)
+  const [showInMenu, setShowInMenu] = useState(false)
+
+  const [image, setImage] = useState<null | {[key: string]; any}>(null)
+
+  const handleFilesChosen = (files: File[]) => {
+    if (files.length) {
+      const toAppend = {
+        url: URL.createObjectURL(files[0]),
+        name: files[0].name,
+        size: files[0].size,
+        nativeFile: files[0],
+        selected: false,
+      }
+
+      console.log(toAppend)
+
+      setImage(toAppend)
+    }
+  }
 
   const { mutateAsync: createProductCategory } = useAdminCreateProductCategory()
 
   const onSubmit = async () => {
     try {
+      let uploadedImage;
+      if (image) {
+        uploadedImage = await Medusa.uploads
+        .create([image.nativeFile])
+        .then(({ data }) => data.uploads[0])
+      }
+
+
       await createProductCategory({
         name,
         handle,
         description,
+        image: uploadedImage ? uploadedImage.url : null,
         is_active: isActive,
         is_internal: !isPublic,
+        showInMenu: showInMenu,
         parent_category_id: parentCategory?.id ?? null,
       })
       // TODO: temporary here, investigate why `useAdminCreateProductCategory` doesn't invalidate this
@@ -187,6 +224,46 @@ function CreateProductCategory(props: CreateProductCategoryProps) {
                 value={visibilityOptions(t)[isPublic ? 0 : 1]}
                 onChange={(o) => setIsPublic(o.value === "public")}
               />
+            </div>
+          </div>
+
+          <div className="mb-8 flex justify-between gap-6">
+            <div className="flex-1">
+              <NextSelect
+                label={t("modals-show-in-menu", "Show in menu")}
+                options={showInMenuOptions(t)}
+                value={showInMenuOptions(t)[showInMenu ? 0 : 1]}
+                onChange={(o) => setShowInMenu(o.value === "yes")}
+              />
+            </div>
+
+            <div className="flex-1">
+            </div>
+          </div>
+
+          <h4 className="inter-large-semibold text-grey-90 pb-1">Category image</h4>
+
+          <div className="mb-8 flex">
+            <div className="flex-1">
+              { !image &&
+              <FileUploadField
+                onFileChosen={handleFilesChosen}
+                placeholder="up to 10MB each"
+                filetypes={["image/gif", "image/jpeg", "image/png", "image/webp"]}
+                className="py-large"
+              />
+              }
+              {image && (
+                <div className="mt-large">
+                  <div className="gap-y-2xsmall flex flex-col relative">
+                    <img src={image.url} />
+                    <Button style={{position: 'absolute', right: 0, borderTopLeftRadius: 0, borderTopRightRadius: 0, borderBottomRightRadius: 0}}
+                            size="small" variant="danger" onClick={() => setImage(null)}>
+                      <CrossIcon size={20} />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

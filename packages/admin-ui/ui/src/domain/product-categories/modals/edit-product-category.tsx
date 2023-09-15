@@ -15,6 +15,8 @@ import useNotification from "../../../hooks/use-notification"
 import { Option } from "../../../types/shared"
 import { getErrorMessage } from "../../../utils/error-messages"
 import TreeCrumbs from "../components/tree-crumbs"
+import FileUploadField from '../../../components/atoms/file-upload-field'
+import Medusa from '../../../services/api'
 
 const visibilityOptions: (t: TFunction) => Option[] = (t) => [
   {
@@ -27,6 +29,11 @@ const visibilityOptions: (t: TFunction) => Option[] = (t) => [
 const statusOptions: (t: TFunction) => Option[] = (t) => [
   { label: "Active", value: "active" },
   { label: "Inactive", value: "inactive" },
+]
+
+const showInMenuOptions = (t) => [
+  { label: t("show-in-menu-yes", "Yes"), value: "yes" },
+  { label: t("show-in-menu-no", "No"), value: "no" },
 ]
 
 type EditProductCategoriesSideModalProps = {
@@ -48,6 +55,25 @@ function EditProductCategoriesSideModal(
   const [description, setDescription] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [isPublic, setIsPublic] = useState(true)
+  const [showInMenu, setShowInMenu] = useState(false)
+
+  const [image, setImage] = useState<null | {[key: string]: any}>(null)
+
+  console.log(image, )
+
+  const handleFilesChosen = (files: File[]) => {
+    if (files.length) {
+      const toAppend = {
+        url: URL.createObjectURL(files[0]),
+        name: files[0].name,
+        size: files[0].size,
+        nativeFile: files[0],
+        selected: false,
+      }
+
+      setImage(toAppend)
+    }
+  }
 
   const { t } = useTranslation()
   const notification = useNotification()
@@ -63,17 +89,38 @@ function EditProductCategoriesSideModal(
       setDescription(activeCategory.description)
       setIsActive(activeCategory.is_active)
       setIsPublic(!activeCategory.is_internal)
+      setShowInMenu(activeCategory.showInMenu)
+      if ((activeCategory as ProductCategory & { image: string | null })?.image) {
+        setImage({
+          url: (activeCategory as ProductCategory & { image: string | null })?.image,
+          name: "",
+          size: 0,
+          nativeFile: null,
+          selected: false,
+        })
+      }
     }
   }, [activeCategory])
 
   const onSave = async () => {
     try {
+      let uploadedImage;
+      if (image) {
+        uploadedImage = await Medusa.uploads
+        .create([image.nativeFile])
+        .then(({ data }) => data.uploads[0])
+        console.log(uploadedImage)
+      }
+
+
       await updateCategory({
         name,
         handle,
         description,
+        image: uploadedImage ? uploadedImage.url : null,
         is_active: isActive,
         is_internal: !isPublic,
+        showInMenu: showInMenu,
       })
 
       notification(
@@ -178,6 +225,38 @@ function EditProductCategoriesSideModal(
             value={visibilityOptions(t)[isPublic ? 0 : 1]}
             onChange={(o) => setIsPublic(o.value === "public")}
           />
+
+          <NextSelect
+            label={t("modals-show-in-menu", "Show in menu")}
+            options={showInMenuOptions(t)}
+            value={showInMenuOptions(t)[showInMenu ? 0 : 1]}
+            onChange={(o) => setShowInMenu(o.value === "yes")}
+          />
+
+          <h4 className="inter-large-semibold text-grey-90 pb-1">{t('category-image-heading', 'Category image')}</h4>
+          <div className="flex">
+            <div className="flex-1">
+              { !image &&
+                  <FileUploadField
+                      onFileChosen={handleFilesChosen}
+                      placeholder={t('category-image-placeholder', 'up to 10MB each')}
+                      filetypes={["image/gif", "image/jpeg", "image/png", "image/webp"]}
+                      className="py-large"
+                  />
+              }
+              {image && (
+                <div className="mt-large w-100">
+                  <div className="gap-y-2xsmall flex flex-col relative w-100">
+                    <img src={image.url} />
+                    <Button style={{position: 'absolute', right: 0, borderTopLeftRadius: 0, borderTopRightRadius: 0, borderBottomRightRadius: 0}}
+                            size="small" variant="danger" onClick={() => setImage(null)}>
+                      <CrossIcon size={20} />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* === DIVIDER === */}

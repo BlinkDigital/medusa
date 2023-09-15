@@ -16,12 +16,16 @@ import TagIcon from "../../fundamentals/icons/tag-icon"
 import UsersIcon from "../../fundamentals/icons/users-icon"
 import SidebarMenuItem from "../../molecules/sidebar-menu-item"
 import UserMenu from "../../molecules/user-menu"
+import WidgetContainer from '../../extensions/widget-container'
+import { useWidgets } from '../../../providers/widget-provider'
 
 const ICON_SIZE = 20
 
 const Sidebar: React.FC = () => {
   const { t } = useTranslation()
   const [currentlyOpen, setCurrentlyOpen] = useState(-1)
+
+  const { getWidgets } = useWidgets()
 
   const { isFeatureEnabled } = useFeatureFlag()
   const { store } = useAdminStore()
@@ -50,6 +54,16 @@ const Sidebar: React.FC = () => {
           <div className="rounded-circle flex h-8 w-8 items-center justify-center border border-solid border-gray-300">
             <UserMenu />
           </div>
+          {getWidgets("menu.avatar.after").map((w, i) => {
+            return (
+              <WidgetContainer
+                key={i}
+                injectionZone={"menu.avatar.after"}
+                widget={w}
+                entity={{}}
+              />
+            )
+          })}
         </div>
         <div className="my-base flex flex-col px-2">
           <span className="text-grey-50 text-small font-medium">
