@@ -46,6 +46,9 @@ export type ProjectConfigOptions = {
   }
   store_cors?: string
   admin_cors?: string
+
+  webshop_sync_endpoint?: string
+  webshop_sync_token?: string
 }
 
 export type ConfigModule = {

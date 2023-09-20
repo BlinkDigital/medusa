@@ -54,6 +54,7 @@ export type EntityMap = {
   // Login
   "login.before"?: never | null | undefined
   "login.after"?: never | null | undefined
+  "menu.avatar.after"?: never | null | undefined
 }
 
 export const PropKeyMap = {

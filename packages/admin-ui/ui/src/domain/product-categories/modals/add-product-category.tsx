@@ -18,6 +18,7 @@ import { getErrorMessage } from "../../../utils/error-messages"
 import TreeCrumbs from "../components/tree-crumbs"
 import FileUploadField from '../../../components/atoms/file-upload-field'
 import Medusa from '../../../services/api'
+import { Option } from '../../../types/shared'
 
 const visibilityOptions = [
   {
@@ -30,6 +31,11 @@ const visibilityOptions = [
 const statusOptions = [
   { label: "Active", value: "active" },
   { label: "Inactive", value: "inactive" },
+]
+
+const showInMenuOptions: Option[] = [
+  { label: "Yes", value: "yes" },
+  { label: "No", value: "no" },
 ]
 
 type CreateProductCategoryProps = {
@@ -50,6 +56,7 @@ function CreateProductCategory(props: CreateProductCategoryProps) {
   const [description, setDescription] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [isPublic, setIsPublic] = useState(true)
+  const [showInMenu, setShowInMenu] = useState(false)
 
   const [image, setImage] = useState<null | {[key: string]; any}>(null)
 
@@ -73,18 +80,22 @@ function CreateProductCategory(props: CreateProductCategoryProps) {
 
   const onSubmit = async () => {
     try {
-      const uploadedImage = await Medusa.uploads
-      .create([image.nativeFile])
-      .then(({ data }) => data.uploads[0])
-      console.log(uploadedImage)
+      let uploadedImage;
+      if (image) {
+        uploadedImage = await Medusa.uploads
+        .create([image.nativeFile])
+        .then(({ data }) => data.uploads[0])
+      }
+
 
       await createProductCategory({
         name,
         handle,
         description,
-        image: uploadedImage.url,
+        image: uploadedImage ? uploadedImage.url : null,
         is_active: isActive,
         is_internal: !isPublic,
+        showInMenu: showInMenu,
         parent_category_id: parentCategory?.id ?? null,
       })
       // TODO: temporary here, investigate why `useAdminCreateProductCategory` doesn't invalidate this
@@ -188,6 +199,20 @@ function CreateProductCategory(props: CreateProductCategoryProps) {
                 value={visibilityOptions[isPublic ? 0 : 1]}
                 onChange={(o) => setIsPublic(o.value === "public")}
               />
+            </div>
+          </div>
+
+          <div className="mb-8 flex justify-between gap-6">
+            <div className="flex-1">
+              <NextSelect
+                label="Show in menu"
+                options={showInMenuOptions}
+                value={showInMenuOptions[showInMenu ? 0 : 1]}
+                onChange={(o) => setShowInMenu(o.value === "yes")}
+              />
+            </div>
+
+            <div className="flex-1">
             </div>
           </div>
 

@@ -49,4 +49,6 @@ export const injectionZones = [
   // Login
   "login.before",
   "login.after",
+  // Menu
+  "menu.avatar.after",
 ] as const

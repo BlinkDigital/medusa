@@ -29,6 +29,11 @@ const statusOptions: Option[] = [
   { label: "Inactive", value: "inactive" },
 ]
 
+const showInMenuOptions: Option[] = [
+  { label: "Yes", value: "yes" },
+  { label: "No", value: "no" },
+]
+
 type EditProductCategoriesSideModalProps = {
   activeCategory: ProductCategory
   close: () => void
@@ -48,8 +53,7 @@ function EditProductCategoriesSideModal(
   const [description, setDescription] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [isPublic, setIsPublic] = useState(true)
-
-  console.log(activeCategory, typeof activeCategory)
+  const [showInMenu, setShowInMenu] = useState(false)
 
   const [image, setImage] = useState<null | {[key: string]: any}>(null)
 
@@ -84,6 +88,7 @@ function EditProductCategoriesSideModal(
       setDescription(activeCategory.description)
       setIsActive(activeCategory.is_active)
       setIsPublic(!activeCategory.is_internal)
+      setShowInMenu(activeCategory.showInMenu)
       if ((activeCategory as ProductCategory & { image: string | null })?.image) {
         setImage({
           url: (activeCategory as ProductCategory & { image: string | null })?.image,
@@ -100,7 +105,7 @@ function EditProductCategoriesSideModal(
     try {
       let uploadedImage;
       if (image) {
-        const uploadedImage = await Medusa.uploads
+        uploadedImage = await Medusa.uploads
         .create([image.nativeFile])
         .then(({ data }) => data.uploads[0])
         console.log(uploadedImage)
@@ -114,6 +119,7 @@ function EditProductCategoriesSideModal(
         image: uploadedImage ? uploadedImage.url : null,
         is_active: isActive,
         is_internal: !isPublic,
+        showInMenu: showInMenu,
       })
 
       notification("Success", "Successfully updated the category", "success")
@@ -199,6 +205,13 @@ function EditProductCategoriesSideModal(
             options={visibilityOptions}
             value={visibilityOptions[isPublic ? 0 : 1]}
             onChange={(o) => setIsPublic(o.value === "public")}
+          />
+
+          <NextSelect
+            label="Show in menu"
+            options={showInMenuOptions}
+            value={showInMenuOptions[showInMenu ? 0 : 1]}
+            onChange={(o) => setShowInMenu(o.value === "yes")}
           />
 
 
