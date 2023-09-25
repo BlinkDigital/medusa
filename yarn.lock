@@ -5824,7 +5824,7 @@ __metadata:
 
 "@medusajs/admin-ui@file:../admin-ui::locator=%40medusajs%2Fadmin%40workspace%3Apackages%2Fadmin":
   version: 2.0.2
-  resolution: "@medusajs/admin-ui@file:../admin-ui#../admin-ui::hash=86b852&locator=%40medusajs%2Fadmin%40workspace%3Apackages%2Fadmin"
+  resolution: "@medusajs/admin-ui@file:../admin-ui#../admin-ui::hash=fb96af&locator=%40medusajs%2Fadmin%40workspace%3Apackages%2Fadmin"
   dependencies:
     "@babel/parser": 7.22.5
     "@babel/traverse": 7.22.5
@@ -5901,7 +5901,7 @@ __metadata:
     webpack: ^5.84.1
     webpack-dev-server: 4.15.0
     webpackbar: ^5.0.2
-  checksum: d80dcfc2f9722ed212bf6927cfbcea22b693c0523762c4ee07de6e0d5225c20bca90a4a3c6bbe9913ffc137fe32d474600396ce285bb2b0fb3a67bfb3ad776a1
+  checksum: daace80ea517bd3f444e3a9ad39743712554387d3cb96d1a18d4f0e5f90d07d279d28284095533ae9d007fc32445b7d07c1a6fe9f6d3ff5ee67a4cbf212055e2
   languageName: node
   linkType: hard
 
