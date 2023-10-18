@@ -69,6 +69,7 @@ import SummaryCard from "./detail-cards/summary"
 import EmailModal from "./email-modal"
 import MarkShippedModal from "./mark-shipped"
 import CreateRefundModal from "./refund"
+import paymentProvidersMapper from "../../../utils/payment-providers-mapper"
 
 type OrderDetailFulfillment = {
   title: string
@@ -395,7 +396,7 @@ const OrderDetails = () => {
                       </div>
                       <div>
                         {order.payments
-                          ?.map((p) => capitalize(p.provider_id))
+                          ?.map((p) => capitalize(paymentProvidersMapper(p.provider_id).label))
                           .join(", ")}
                       </div>
                     </div>
