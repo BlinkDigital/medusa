@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 
 import { ProductCategory } from "@medusajs/medusa"
 import { useAdminUpdateProductCategory } from "medusa-react"
+import { TFunction } from "i18next"
+import { useTranslation } from "react-i18next"
 
 import Button from "../../../components/fundamentals/button"
 import CrossIcon from "../../../components/fundamentals/icons/cross-icon"
@@ -16,7 +18,7 @@ import TreeCrumbs from "../components/tree-crumbs"
 import FileUploadField from '../../../components/atoms/file-upload-field'
 import Medusa from '../../../services/api'
 
-const visibilityOptions: Option[] = [
+const visibilityOptions: (t: TFunction) => Option[] = (t) => [
   {
     label: "Public",
     value: "public",
@@ -24,14 +26,14 @@ const visibilityOptions: Option[] = [
   { label: "Private", value: "private" },
 ]
 
-const statusOptions: Option[] = [
+const statusOptions: (t: TFunction) => Option[] = (t) => [
   { label: "Active", value: "active" },
   { label: "Inactive", value: "inactive" },
 ]
 
-const showInMenuOptions: Option[] = [
-  { label: "Yes", value: "yes" },
-  { label: "No", value: "no" },
+const showInMenuOptions = (t) => [
+  { label: t("show-in-menu-yes", "Yes"), value: "yes" },
+  { label: t("show-in-menu-no", "No"), value: "no" },
 ]
 
 type EditProductCategoriesSideModalProps = {
@@ -69,12 +71,11 @@ function EditProductCategoriesSideModal(
         selected: false,
       }
 
-      console.log(toAppend)
-
       setImage(toAppend)
     }
   }
 
+  const { t } = useTranslation()
   const notification = useNotification()
 
   const { mutateAsync: updateCategory } = useAdminUpdateProductCategory(
@@ -122,11 +123,23 @@ function EditProductCategoriesSideModal(
         showInMenu: showInMenu,
       })
 
-      notification("Success", "Successfully updated the category", "success")
+      notification(
+        t("modals-success", "Success"),
+        t(
+          "modals-successfully-updated-the-category",
+          "Successfully updated the category"
+        ),
+        "success"
+      )
       close()
     } catch (e) {
-      const errorMessage = getErrorMessage(e) || "Failed to update the category"
-      notification("Error", errorMessage, "error")
+      const errorMessage =
+        getErrorMessage(e) ||
+        t(
+          "modals-failed-to-update-the-category",
+          "Failed to update the category"
+        )
+      notification(t("modals-error", "Error"), errorMessage, "error")
     }
   }
 
@@ -140,7 +153,7 @@ function EditProductCategoriesSideModal(
         {/* === HEADER === */}
         <div className="flex items-center justify-between p-6">
           <h3 className="inter-large-semibold flex items-center gap-2 text-xl text-gray-900">
-            Edit product category
+            {t("modals-edit-product-category", "Edit product category")}
           </h3>
           <Button
             variant="secondary"
@@ -163,65 +176,70 @@ function EditProductCategoriesSideModal(
         <div className="flex-grow px-6">
           <InputField
             required
-            label="Name"
+            label={t("modals-name", "Name")}
             type="string"
             name="name"
             value={name}
             className="my-6"
-            placeholder="Give this category a name"
+            placeholder={t(
+              "modals-give-this-category-a-name",
+              "Give this category a name"
+            )}
             onChange={(ev) => setName(ev.target.value)}
           />
 
           <InputField
             required
-            label="Handle"
+            label={t("modals-handle", "Handle")}
             type="string"
             name="handle"
             value={handle}
             className="my-6"
-            placeholder="Custom handle"
+            placeholder={t("modals-custom-handle", "Custom handle")}
             onChange={(ev) => setHandle(ev.target.value)}
           />
 
           <TextArea
-            label="Description"
+            label={t("modals-description", "Description")}
             name="description"
             value={description}
             className="my-6"
-            placeholder="Give this category a description"
+            placeholder={t(
+              "modals-give-this-category-a-description",
+              "Give this category a description"
+            )}
             onChange={(ev) => setDescription(ev.target.value)}
           />
 
           <NextSelect
-            label="Status"
-            options={statusOptions}
-            value={statusOptions[isActive ? 0 : 1]}
+            label={t("modals-status", "Status")}
+            options={statusOptions(t)}
+            value={statusOptions(t)[isActive ? 0 : 1]}
             onChange={(o) => setIsActive(o.value === "active")}
           />
 
           <NextSelect
             className="my-6"
-            label="Visibility"
-            options={visibilityOptions}
-            value={visibilityOptions[isPublic ? 0 : 1]}
+            label={t("modals-visibility", "Visibility")}
+            options={visibilityOptions(t)}
+            value={visibilityOptions(t)[isPublic ? 0 : 1]}
             onChange={(o) => setIsPublic(o.value === "public")}
           />
 
           <NextSelect
-            label="Show in menu"
-            options={showInMenuOptions}
-            value={showInMenuOptions[showInMenu ? 0 : 1]}
+            label={t("modals-show-in-menu", "Show in menu")}
+            options={showInMenuOptions(t)}
+            value={showInMenuOptions(t)[showInMenu ? 0 : 1]}
             onChange={(o) => setShowInMenu(o.value === "yes")}
           />
 
-
-          <h4 className="inter-large-semibold text-grey-90 pb-1">Category image</h4>
+          <h4 className="inter-large-semibold text-grey-90 pb-1">{t('category-image-heading', 'Category image')}</h4>
           <div className="flex">
             <div className="flex-1">
               { !image &&
                   <FileUploadField
                       onFileChosen={handleFilesChosen}
-                      placeholder="up to 10MB each"
+                      placeholder={t('category-image-placeholder', 'up to 10MB each')}
                       filetypes={["image/gif", "image/jpeg", "image/png", "image/webp"]}
                       className="py-large"
                   />
@@ -247,10 +265,10 @@ function EditProductCategoriesSideModal(
         {/* === FOOTER === */}
         <div className="flex justify-end gap-2 p-3">
           <Button size="small" variant="ghost" onClick={onClose}>
-            Cancel
+            {t("modals-cancel", "Cancel")}
           </Button>
           <Button size="small" variant="primary" onClick={onSave}>
-            Save and close
+            {t("modals-save-and-close", "Save and close")}
           </Button>
         </div>
       </div>

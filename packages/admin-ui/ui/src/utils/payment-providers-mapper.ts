@@ -61,6 +61,10 @@ const providerDescriptors: { [providerKey: string]: Option } = {
     label: "Manual",
     value: "manual",
   },
+  "by-invoice": {
+    label: "Per factuur",
+    value: "by-invoice",
+  }
 }
 
 export default function (provider: string): Option {
