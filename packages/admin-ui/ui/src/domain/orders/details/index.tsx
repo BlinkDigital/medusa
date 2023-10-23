@@ -11,7 +11,8 @@ import {
   useAdminOrder,
   useAdminRegion,
   useAdminReservations,
-  useAdminUpdateOrder,
+  useAdminStockLocations,
+  useAdminUpdateOrder
 } from "medusa-react"
 import { useNavigate, useParams } from "react-router-dom"
 import OrderEditProvider, { OrderEditContext } from "../edit/context"
@@ -301,6 +302,21 @@ const OrderDetails = () => {
     })
   }
 
+  const [location, setLocation] = useState('-');
+
+  const { stock_locations } = useAdminStockLocations({
+    id: order?.metadata?.location_id as string,
+    expand: "address"
+  })
+
+  const stock_location = useMemo(() => stock_locations?.[0], stock_locations)
+
+  const appointmentDate = useMemo(() => {
+    const date_str = (order?.metadata?.pickup_info as Record<string, string> | undefined)?.pickup_date
+    if (!date_str) return null
+    return Date.parse(date_str)
+  }, [order?.metadata?.pickup_info])
+
   if (!order && isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center">
@@ -400,6 +416,14 @@ const OrderDetails = () => {
                           .join(", ")}
                       </div>
                     </div>
+                    <div className="flex flex-col pl-6">
+                      <div className="inter-smaller-regular text-grey-50 mb-1">
+                        {t("details-location", "Location")}
+                      </div>
+                      <div>
+                        {stock_location && stock_location.address && `${stock_location.name}, ${stock_location.address.city}` || stock_location && stock_location.name || '-'}
+                      </div>
+                    </div>
                   </div>
                 </BodyCard>
 
@@ -486,15 +510,39 @@ const OrderDetails = () => {
                     order.status !== "canceled" &&
                     anyItemsToFulfil && (
                       <Button
-                        variant="secondary"
+                        variant="primary"
                         size="small"
                         onClick={() => setShowFulfillment(true)}
                       >
-                        {t("details-create-fulfillment", "Create Fulfillment")}
+                        {t("details-approve-appointment", "Approve appointment")}
                       </Button>
                     )
                   }
                 >
+                  <div className="mt-6 flex space-x-6 divide-x">
+                    <div className="flex flex-col">
+                        <span className="inter-small-regular text-grey-50">
+                          {t("details-appointment-date", "Appointment date")}
+                        </span>
+                      <span className="inter-small-regular text-grey-90 mt-2">
+                          {
+                            appointmentDate ? moment(appointmentDate).format(
+                              "D MMMM YYYY"
+                            ) : null
+                          }
+                        </span>
+                    </div>
+                    <div className="flex flex-col pl-6">
+                        <span className="inter-small-regular text-grey-50">
+                          {t("details-appointment-date", "Appointment time")}
+                        </span>
+                      <span className="inter-small-regular text-grey-90 mt-2">
+                          {
+                            (order?.metadata?.pickup_info as Record<string, string> | undefined)?.pickup_moment || '-'
+                          }
+                        </span>
+                    </div>
+                  </div>
                   <div className="mt-6">
                     {order.shipping_methods.map((method) => (
                       <div className="flex flex-col" key={method.id}>

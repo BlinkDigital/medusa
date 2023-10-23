@@ -2,7 +2,7 @@ import "react-datepicker/dist/react-datepicker.css"
 
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 
 import ArrowDownIcon from "../../fundamentals/icons/arrow-down-icon"
 import Button from "../../fundamentals/button"
@@ -45,17 +45,18 @@ const DatePicker: React.FC<DateTimePickerProps> = ({
   const [tempDate, setTempDate] = useState<Date | null>(date || null)
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => setTempDate(date), [isOpen])
+  useEffect(() => setTempDate(date || new Date()), [isOpen])
 
   const submitDate = () => {
-    if (!tempDate || !date) {
+    console.log(tempDate, date)
+    if (!tempDate) {
       onSubmitDate(null)
       setIsOpen(false)
       return
     }
 
     // update only date, month and year
-    const newDate = new Date(date.getTime())
+    const newDate = date ? new Date(date.getTime()) : new Date()
     newDate.setUTCDate(tempDate.getUTCDate())
     newDate.setUTCMonth(tempDate.getUTCMonth())
     newDate.setUTCFullYear(tempDate.getUTCFullYear())
@@ -63,6 +64,8 @@ const DatePicker: React.FC<DateTimePickerProps> = ({
     onSubmitDate(newDate)
     setIsOpen(false)
   }
+
+  const showLabel = useMemo(() => Boolean(label.length), [label])
 
   return (
     <div className="w-full">
@@ -75,20 +78,24 @@ const DatePicker: React.FC<DateTimePickerProps> = ({
             })}
             type="button"
           >
-            <InputContainer className="shadown-none border-0 focus-within:shadow-none">
-              <div className="text-grey-50 flex w-full justify-between pr-0.5">
-                {label && (
-                  <InputHeader
-                    {...{
-                      label,
-                      required,
-                      tooltipContent,
-                      tooltip,
-                    }}
-                  />
-                )}
-                <ArrowDownIcon size={16} />
-              </div>
+            <InputContainer className={clsx("shadown-none border-0 focus-within:shadow-none ", {
+              "px-small py-xsmall": !showLabel,
+            })}>
+              { showLabel ?
+                <div className="text-grey-50 flex w-full justify-between pr-0.5">
+                  {label && (
+                    <InputHeader
+                      {...{
+                        label,
+                        required,
+                        tooltipContent,
+                        tooltip,
+                      }}
+                    />
+                  )}
+                  <ArrowDownIcon size={16} />
+                </div> : null
+              }
               <label className="w-full text-left">
                 {date
                   ? moment(date).format("ddd, DD MMM YYYY")

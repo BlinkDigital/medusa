@@ -13,12 +13,12 @@ import CreateFulfillmentItemsTable, {
 import Metadata, {
   MetadataField,
 } from "../../../../components/organisms/metadata"
-import React, { useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import {
   useAdminCreateFulfillment,
   useAdminFulfillClaim,
   useAdminFulfillSwap,
-  useAdminStockLocations,
+  useAdminStockLocations, useAdminUpdateOrder,
 } from "medusa-react"
 
 import Button from "../../../../components/fundamentals/button"
@@ -30,6 +30,10 @@ import Switch from "../../../../components/atoms/switch"
 import { getErrorMessage } from "../../../../utils/error-messages"
 import { useFeatureFlag } from "../../../../providers/feature-flag-provider"
 import useNotification from "../../../../hooks/use-notification"
+import InputField from '../../../../components/molecules/input'
+import DatePicker from '../../../../components/atoms/date-picker/date-picker'
+import InputHeader from '../../../../components/fundamentals/input-header'
+import moment from "moment"
 
 type CreateFulfillmentModalProps = {
   handleCancel: () => void
@@ -73,7 +77,9 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
   ])
 
   const { stock_locations, refetch } = useAdminStockLocations(
-    {},
+    orderToFulfill?.metadata?.location_id ? {
+      id: orderToFulfill.metadata.location_id as string
+    } : {},
     {
       enabled: isLocationFulfillmentEnabled,
     }
@@ -95,6 +101,14 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
     }))
   }, [stock_locations])
 
+  React.useEffect(() => {
+    if (locationOptions.length === 1) {
+      setLocationSelectValue(locationOptions[0])
+    } else {
+      setLocationSelectValue({})
+    }
+  }, [locationOptions])
+
   const items =
     "items" in orderToFulfill
       ? orderToFulfill.items
@@ -110,6 +124,40 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
     createClaimFulfillment.isLoading
 
   const notification = useNotification()
+
+  const orderType = useMemo(() => orderToFulfill.id.split("_")[0], [orderToFulfill?.id])
+
+  const retrievePickupKey = (key: string) => {
+    if (orderType !== 'order') return null
+    const value = (orderToFulfill?.metadata?.pickup_info as Record<string, string> | undefined)?.[key];
+    if (!value?.length) return null
+    return key.includes('date') ? new Date(value) : value;
+  }
+
+  let [appointmentDate, setAppointmentDate] = useState(retrievePickupKey('pickup_date') as Date | null)
+  let [pickupMoment, setPickupMoment] = useState(retrievePickupKey('pickup_moment') as string | null)
+
+  useEffect(
+    () => {
+      setAppointmentDate(retrievePickupKey('pickup_date') as Date | null)
+      setPickupMoment(retrievePickupKey('pickup_moment') as string | null)
+    },
+    [orderToFulfill?.metadata?.pickup_info]
+  )
+
+
+  let mutateOrder : unknown | undefined;
+  if (orderType === 'order') {
+    mutateOrder = useAdminUpdateOrder(orderId).mutate
+  }
+
+
+  const updateOrder = (order: Record<string, any>) => {
+    if (mutateOrder) {
+      // @ts-ignore
+      mutateOrder(order)
+    }
+  }
 
   const createFulfillment = () => {
     if (isLocationFulfillmentEnabled && !locationSelectValue.value) {
@@ -219,6 +267,16 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
         )
         handleCancel()
         onComplete && onComplete()
+        updateOrder({
+          metadata: {
+            ...orderToFulfill.metadata || {},
+            pickup_info: {
+              ...orderToFulfill.metadata?.pickup_info || {},
+              pickup_date: moment(appointmentDate).format('YYYY-MM-DD'),
+              pickup_moment: pickupMoment,
+            }
+          }
+        })
       },
       onError: (err) =>
         notification(
@@ -260,7 +318,7 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
                 !Object.values(quantities).some((quantity) => quantity > 0)
               }
             >
-              {t("create-fulfillment-create-fulfillment", "Create fulfillment")}
+              {t("create-fulfillment-approve-appointment", "Approve appointment")}
             </Button>
           </div>
         </div>
@@ -269,11 +327,44 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
         <div className="pt-16">
           <h1 className="inter-xlarge-semibold">
             {t(
-              "create-fulfillment-create-fulfillment-title",
-              "Create Fulfillment"
+              "create-fulfillment-approve-appointment-title",
+              "Approve appointment"
             )}
           </h1>
           <div className="grid-col-1 grid gap-y-8 divide-y [&>*]:pt-8">
+            <div className="flex flex-col">
+              <span className="inter-base-semibold ">
+                {t("create-fulfillment-appointment-details", "Appointment details")}
+              </span>
+              <span className="text-grey-50 mb-6">
+                {t(
+                  "create-fulfillment-select-when-the-customer-should-come-to-pick-up-their-order",
+                  "Select when the customer should come to pick up their order."
+                )}
+              </span>
+              <div className="gap-x-xsmall flex w-full items-center">
+                <div className="maw-w-[200px]">
+                  <InputHeader
+                    label='Appointment date'
+                    required
+                    className="mb-xsmall"
+                  />
+                  <DatePicker
+                    label={''}
+                    date={appointmentDate as Date | null}
+                    onSubmitDate={setAppointmentDate}
+                    required
+                  />
+                </div>
+                <div className="flex-grow">
+                  <InputField
+                    label="Appointment time"
+                    value={(pickupMoment as string | null) || ''}
+                    onChange={(e) => setPickupMoment(e.target?.value || '')}
+                  />
+                </div>
+              </div>
+            </div>
             <FeatureToggle featureFlag="inventoryService">
               <div className="grid grid-cols-2">
                 <div>
