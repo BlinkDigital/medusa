@@ -13,7 +13,7 @@ import CreateFulfillmentItemsTable, {
 import Metadata, {
   MetadataField,
 } from "../../../../components/organisms/metadata"
-import React, { useEffect, useMemo, useState } from "react"
+import React, {useCallback, useEffect, useMemo, useState} from "react"
 import {
   useAdminCreateFulfillment,
   useAdminFulfillClaim,
@@ -152,14 +152,22 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
   }
 
 
-  const updateOrder = (order: Record<string, any>) => {
-    if (mutateOrder) {
-      // @ts-ignore
-      mutateOrder(order)
-    }
-  }
+  const updateOrder = useCallback((orderData: Record<string, any>) => {
+    return new Promise((res, rej) => {
+      if (!mutateOrder) res();
 
-  const createFulfillment = () => {
+      mutateOrder(orderData, {
+        onSuccess(data) {
+          res(data)
+        },
+        onError(err) {
+          rej(err)
+        }
+      });
+    });
+  }, [])
+
+  const createFulfillment = async () => {
     if (isLocationFulfillmentEnabled && !locationSelectValue.value) {
       notification(
         t("create-fulfillment-error", "Error"),
@@ -258,6 +266,33 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
       requestObj.location_id = locationSelectValue.value
     }
 
+    try {
+      const { order } = await updateOrder({
+        metadata: {
+          ...orderToFulfill.metadata || {},
+          pickup_info: {
+            ...orderToFulfill.metadata?.pickup_info || {},
+            pickup_date: moment(appointmentDate).format('YYYY-MM-DD'),
+            pickup_moment: pickupMoment,
+          }
+        }
+      });
+
+      notification(
+          t("update-order-success", "Success"),
+          t("update-order-update-pickup-info", "Pickup info of order successfully modified"),
+          "success"
+      );
+    } catch(err) {
+      notification(
+          t("update-order-error", "Error"),
+          getErrorMessage(err),
+          "error"
+      );
+
+      return;
+    }
+
     action.mutate(requestObj, {
       onSuccess: () => {
         notification(
@@ -267,16 +302,6 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
         )
         handleCancel()
         onComplete && onComplete()
-        updateOrder({
-          metadata: {
-            ...orderToFulfill.metadata || {},
-            pickup_info: {
-              ...orderToFulfill.metadata?.pickup_info || {},
-              pickup_date: moment(appointmentDate).format('YYYY-MM-DD'),
-              pickup_moment: pickupMoment,
-            }
-          }
-        })
       },
       onError: (err) =>
         notification(
