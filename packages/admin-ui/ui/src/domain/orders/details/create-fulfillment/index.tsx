@@ -154,7 +154,7 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
 
   const updateOrder = useCallback((orderData: Record<string, any>) => {
     return new Promise((res, rej) => {
-      if (!mutateOrder) res();
+      if (!mutateOrder) res({order: orderData});
 
       mutateOrder(orderData, {
         onSuccess(data) {
