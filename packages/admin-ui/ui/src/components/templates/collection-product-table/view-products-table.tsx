@@ -1,6 +1,6 @@
 import { useAdminProducts } from "medusa-react"
 import React, { useEffect, useState } from "react"
-import { usePagination, useTable } from "react-table"
+import { Row, usePagination, useTable } from "react-table"
 import { useTranslation } from "react-i18next"
 import { useDebounce } from "../../../hooks/use-debounce"
 import Medusa from "../../../services/api"
@@ -10,6 +10,12 @@ import Table from "../../molecules/table"
 import DeletePrompt from "../../organisms/delete-prompt"
 import TableContainer from "../../organisms/table-container"
 import useViewProductColumns from "./use-view-product-columns"
+import Nestable from 'react-nestable'
+import ReorderIcon from "../../fundamentals/icons/reorder-icon"
+import TriangleMiniIcon from "../../fundamentals/icons/triangle-mini-icon"
+import { Link } from 'react-router-dom'
+import { decideStatus } from './utils'
+import axios from "axios"
 
 type ViewProductsTableProps = {
   collectionId: string
@@ -17,25 +23,26 @@ type ViewProductsTableProps = {
 }
 
 const ViewProductsTable: React.FC<ViewProductsTableProps> = ({
-  collectionId,
-  refetchCollection,
-}) => {
+                                                               collectionId,
+                                                               refetchCollection,
+                                                             }) => {
   const limit = 10
   const [query, setQuery] = useState("")
   const [offset, setOffset] = useState(0)
   const [numPages, setNumPages] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const debouncedSearchTerm = useDebounce(query, 500)
-  const { t } = useTranslation()
+  const {t} = useTranslation()
 
   const [showDelete, setShowDelete] = useState(false)
   const [idToDelete, setIdToDelete] = useState<string | undefined>(undefined)
 
-  const { isLoading, count, products, refetch } = useAdminProducts({
+  const {isLoading, count, products, refetch} = useAdminProducts({
     q: debouncedSearchTerm,
     collection_id: [collectionId],
     limit: limit,
     offset,
+    order: 'collection_rank'
   })
 
   useEffect(() => {
@@ -167,20 +174,67 @@ const ViewProductsTable: React.FC<ViewProductsTableProps> = ({
           className="h-full"
         >
           <Table.Body {...getTableBodyProps()}>
-            {rows.map((row) => {
-              prepareRow(row)
-              return (
-                <Table.Row
-                  color={"inherit"}
-                  {...row.getRowProps()}
-                  className="px-base"
-                >
-                  {row.cells.map((cell, index) => {
-                    return cell.render("Cell", { index })
-                  })}
-                </Table.Row>
-              )
-            })}
+            <Nestable
+              items={products}
+              collapsed={true}
+              onChange={(items) => {
+                axios.post(`${process.env.MEDUSA_BACKEND_URL}/admin/collections/${collectionId}/change-order`, {
+                  items: items.items.map(i => i.id)
+                }, { withCredentials: true })
+              }}
+              childrenProp="collection_children"
+              maxDepth={1}
+              renderItem={({item, depth, handler, collapseIcon}) => {
+                return (
+                  <div className="bg-white text-grey-90">
+                    <div
+                      style={{marginLeft: -8}}
+                      className="flex h-[64px] items-center"
+                    >
+                      <div className="flex w-[32px] items-center justify-center">
+                        {handler}
+                      </div>
+
+                      <div className="bg-grey-5 rounded-soft my-xsmall h-[40px] w-[30px] overflow-hidden mx-[10px]">
+                          {item.thumbnail ? (
+                            <img
+                              src={item.thumbnail}
+                              alt="Thumbnail"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : null}
+                      </div>
+
+
+
+                      <div className="flex w-full items-center justify-between">
+                        <div className="flex items-center">
+                        <span
+                          className={"ml-2 select-none text-xs"}
+                        ><Link to={`/a/products/${item.id}`}>{item.title}</Link></span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {decideStatus(item.status)}
+                          <Button
+                            variant="ghost"
+                            size="small"
+                            className="text-grey-40"
+                            onClick={() => {
+                              setIdToDelete(item.id)
+                              setShowDelete(true)
+                            }}
+                          >
+                            <TrashIcon size={20}/>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }}
+              handler={<ReorderIcon className="cursor-grab" color="#889096"/>}
+            />
           </Table.Body>
         </Table>
       </TableContainer>
