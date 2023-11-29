@@ -21,7 +21,7 @@ import { createUpdatePayload } from "./edit-variants-modal/edit-variant-screen"
 type Props = {
   onClose: () => void
   product: Product
-  variant: ProductVariant
+  variant: ProductVariant & {custom_attributes?: Record<string, unknown> | null, platform_costs: number | null}
   isDuplicate?: boolean
 }
 
@@ -153,7 +153,7 @@ const EditVariantModal = ({
 }
 
 export const getEditVariantDefaultValues = (
-  variant: ProductVariant & { custom_attributes?: Record<string, unknown> | null },
+  variant: ProductVariant & { custom_attributes?: Record<string, unknown> | null, platform_costs: number | null },
   product: Product
 ): EditFlowVariantFormType => {
   const options = product.options.map((option) => ({
@@ -211,7 +211,8 @@ export const getEditVariantDefaultValues = (
     },
     options,
     metadata: getMetadataFormValues(variant.metadata),
-    custom_attributes: getMetadataFormValues(variant.custom_attributes)
+    custom_attributes: getMetadataFormValues(variant.custom_attributes),
+    platform_costs: variant.platform_costs
   }
 }
 
