@@ -542,6 +542,16 @@ const OrderDetails = () => {
                           }
                         </span>
                     </div>
+                    <div className="flex flex-col pl-6">
+                        <span className="inter-small-regular text-grey-50">
+                          {t("details-appointment-phone", "Appointment contact")}
+                        </span>
+                      <span className="inter-small-regular text-grey-90 mt-2">
+                          {
+                              (order?.metadata?.pickup_info as Record<string, string> | undefined)?.contact_phone || '-'
+                          }
+                        </span>
+                    </div>
                   </div>
                   <div className="mt-6">
                     {order.shipping_methods.map((method) => (

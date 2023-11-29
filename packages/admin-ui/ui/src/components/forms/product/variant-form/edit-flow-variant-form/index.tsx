@@ -14,6 +14,9 @@ import Accordion from "../../../../organisms/accordion"
 import MetadataForm, { MetadataFormType } from "../../../general/metadata-form"
 import { PricesFormType } from "../../../general/prices-form"
 import VariantPricesForm from "../variant-prices-form"
+import PriceFormInput from '../../../general/prices-form/price-form-input'
+import VariantPlatformcostsForm from '../variant-platformcosts-form'
+import VariantPlatformCostsForm from '../variant-platformcosts-form'
 
 export type EditFlowVariantFormType = {
   /**
@@ -31,7 +34,8 @@ export type EditFlowVariantFormType = {
   customs: CustomsFormType
   dimensions: DimensionsFormType
   metadata: MetadataFormType,
-  custom_attributes: MetadataFormType
+  custom_attributes: MetadataFormType,
+  platform_costs: number | null,
 }
 
 type Props = {
@@ -133,6 +137,12 @@ const EditFlowVariantForm = ({ form, isEdit }: Props) => {
           Will be displayed as additional product information.
         </p>
         <MetadataForm form={nestedForm(form, "custom_attributes")} />
+      </Accordion.Item>
+      <Accordion.Item title="Platform costs" value="platform_costs">
+        <p className="inter-base-regular text-grey-50 mb-base">
+          Additional platform costs (administrative)
+        </p>
+        <VariantPlatformCostsForm form={nestedForm(form, 'platform_costs')} />
       </Accordion.Item>
       <Accordion.Item title="Metadata" value="metadata">
         <p className="inter-base-regular text-grey-50 mb-base">

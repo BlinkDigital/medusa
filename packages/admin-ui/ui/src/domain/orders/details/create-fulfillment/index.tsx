@@ -136,6 +136,7 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
 
   let [appointmentDate, setAppointmentDate] = useState(retrievePickupKey('pickup_date') as Date | null)
   let [pickupMoment, setPickupMoment] = useState(retrievePickupKey('pickup_moment') as string | null)
+  const pickupInfoPhone: string  = retrievePickupKey('contact_phone') as string
 
   useEffect(
     () => {
@@ -389,6 +390,10 @@ const CreateFulfillmentModal: React.FC<CreateFulfillmentModalProps> = ({
                   />
                 </div>
               </div>
+              <span className="inter-base-semibold mt-6">
+                {t("create-fulfillment-appointment-contact", "Appointment contact phone number")}
+              </span>
+              <a className="text-grey-50" href={`tel:${pickupInfoPhone}`}>{pickupInfoPhone}</a>
             </div>
             <FeatureToggle featureFlag="inventoryService">
               <div className="grid grid-cols-2">

@@ -98,6 +98,8 @@ function EditProductCategoriesSideModal(
           nativeFile: null,
           selected: false,
         })
+      } else {
+        setImage(null)
       }
     }
   }, [activeCategory])
