@@ -19,6 +19,7 @@ type OrderFilterAction =
   | { type: "setStatus"; payload: null | string[] | string }
   | { type: "setFulfillment"; payload: null | string[] | string }
   | { type: "setPayment"; payload: null | string[] | string }
+  | { type: 'setLocationId'; payload: null | string | string[] }
 
 interface OrderFilterState {
   query?: string | null
@@ -46,6 +47,10 @@ interface OrderFilterState {
     open: boolean
     filter: OrderDateFilter
   }
+  location: {
+    open: boolean
+    filter: string | null
+  }
   limit: number
   offset: number
   additionalFilters: OrderDefaultFilters | null
@@ -60,6 +65,7 @@ const allowedFilters = [
   "q",
   "offset",
   "limit",
+  'location'
 ]
 
 const DefaultTabs = {
@@ -105,6 +111,7 @@ const reducer = (
         status: action.payload.status,
         date: action.payload.date,
         query: action?.payload?.query,
+        location: action.payload.location
       }
     }
     case "setQuery": {
@@ -211,6 +218,10 @@ export const useOrderFilters = (
     dispatch({ type: "setDefaults", payload: filters })
   }
 
+  const setLocationFilter = (filter: string | null) => {
+    dispatch({ type: "setLocation", payload: filter })
+  }
+
   const paginate = (direction: 1 | -1) => {
     if (direction > 0) {
       const nextOffset = state.offset + state.limit
@@ -251,6 +262,10 @@ export const useOrderFilters = (
         date: {
           open: false,
           filter: null,
+        },
+        location: {
+          open: false,
+          filter: null
         },
         query: null,
       },
@@ -409,6 +424,10 @@ export const useOrderFilters = (
           open: false,
           filter: null,
         },
+        location: {
+          open: false,
+          filter: null,
+        },
       }
 
       for (const [filter, val] of Object.entries(tabToUse)) {
@@ -501,6 +520,7 @@ export const useOrderFilters = (
     setFulfillmentFilter,
     setPaymentFilter,
     setStatusFilter,
+    setLocationFilter,
     reset,
   }
 }
@@ -512,6 +532,7 @@ const filterStateMap = {
   created_at: "date",
   region_id: "region",
   sales_channel_id: "salesChannel",
+  location_id: 'location'
 }
 
 const stateFilterMap = {
@@ -521,6 +542,7 @@ const stateFilterMap = {
   fulfillment: "fulfillment_status",
   payment: "payment_status",
   date: "created_at",
+  location: "location_id"
 }
 
 const parseQueryString = (
@@ -552,10 +574,16 @@ const parseQueryString = (
       open: false,
       filter: null,
     },
+    location: {
+      open: false,
+      filter: null,
+    },
     offset: 0,
     limit: 15,
     additionalFilters: additionals,
   }
+
+  console.log(queryString)
 
   if (queryString) {
     const filters = qs.parse(queryString)
@@ -625,6 +653,13 @@ const parseQueryString = (
             }
             break
           }
+          case "location_id": {
+            defaultVal.location = {
+              open: true,
+              filter: value
+            }
+            break
+          }
           case "created_at": {
             defaultVal.date = {
               open: true,
@@ -633,6 +668,7 @@ const parseQueryString = (
             break
           }
           default: {
+            console.log(key)
             break
           }
         }

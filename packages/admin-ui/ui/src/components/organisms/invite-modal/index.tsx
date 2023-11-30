@@ -63,6 +63,7 @@ const InviteModal: React.FC<InviteModalProps> = ({ handleClose }) => {
     { value: "member", label: t("invite-modal-member", "Member") },
     { value: "admin", label: t("invite-modal-admin", "Admin") },
     { value: "developer", label: t("invite-modal-developer", "Developer") },
+    { value: "location_manager", label: t("invite-modal-location_manager", "Location manager") },
   ]
 
   return (

@@ -23,15 +23,18 @@ import SalesChannels from "../domain/sales-channels"
 import Settings from "../domain/settings"
 import { useRoutes } from "../providers/route-provider"
 import { isRoute } from "../utils/extensions"
+import { useIsLocationManager } from '../hooks/use-is-location-manager'
+import {useAdminGetSession} from 'medusa-react'
 
 const IndexPage = () => {
   const navigate = useNavigate()
   useHotkeys("g + o", () => navigate("/a/orders"))
   useHotkeys("g + p", () => navigate("/a/products"))
+  const isLocManager = useIsLocationManager()
 
   return (
     <PrivateRoute>
-      <DashboardRoutes />
+      {isLocManager ? <LocationManagerRoutes /> : <DashboardRoutes />}
     </PrivateRoute>
   )
 }
@@ -77,6 +80,20 @@ const DashboardRoutes = () => {
               />
             )
           })}
+        </Routes>
+      </Layout>
+    </DndProvider>
+  )
+}
+
+const LocationManagerRoutes = () => {
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <Layout>
+        <SEO title="Medusa"/>
+        <Routes>
+          <Route path="orders/*" element={<Orders />} />
+          <Route path="draft-orders/*" element={<DraftOrders />} />
         </Routes>
       </Layout>
     </DndProvider>

@@ -8,6 +8,7 @@ export enum UserRoles {
   ADMIN = "admin",
   MEMBER = "member",
   DEVELOPER = "developer",
+  LOCATION_MANAGER = "location_manager"
 }
 
 @Entity()

@@ -1,5 +1,5 @@
 import clsx from "clsx"
-import { useAdminRegions, useAdminSalesChannels } from "medusa-react"
+import {useAdminRegions, useAdminSalesChannels, useAdminStockLocation, useAdminStockLocations} from "medusa-react"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import FilterDropdownContainer from "../../../components/molecules/filter-dropdown/container"
@@ -123,6 +123,8 @@ const OrderFilters = ({
     isLoading: isLoadingRegions,
   } = useAdminRegions(regionsPagination)
 
+  const adminStockLocations = useAdminStockLocations()
+
   const { sales_channels, isLoading: isLoadingSalesChannels } =
     useAdminSalesChannels(
       { limit: CHANNEL_PAGE_SIZE },
@@ -232,6 +234,19 @@ const OrderFilters = ({
             setFilter={(v) => setSingleFilter("salesChannel", v)}
           />
         )}
+        <FilterDropdownItem
+          filterTitle={t('order-filter-stock-location', 'Stock location')}
+          options={adminStockLocations.stock_locations?.map((sL) => {
+            return {
+              label: sL.name,
+              value: sL.id
+            }
+          })}
+          open={tempState.location.open}
+          filters={tempState.location.filter}
+          isLoading={adminStockLocations.isLoading}
+          setFilter={(v) => setSingleFilter('location', v) }
+        />
         <FilterDropdownItem
           filterTitle={t("order-filter-dropdown-date", "Date")}
           options={dateFilters}

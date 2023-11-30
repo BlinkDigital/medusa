@@ -18,6 +18,7 @@ import SidebarMenuItem from "../../molecules/sidebar-menu-item"
 import UserMenu from "../../molecules/user-menu"
 import WidgetContainer from '../../extensions/widget-container'
 import { useWidgets } from '../../../providers/widget-provider'
+import {useIsLocationManager} from '../../../hooks/use-is-location-manager'
 
 const ICON_SIZE = 20
 
@@ -46,6 +47,8 @@ const Sidebar: React.FC = () => {
   const inventoryEnabled =
     isFeatureEnabled("inventoryService") &&
     isFeatureEnabled("stockLocationService")
+
+  const isLocManager = useIsLocationManager()
 
   return (
     <div className="min-w-sidebar max-w-sidebar bg-gray-0 border-grey-20 py-base px-base h-screen overflow-y-auto border-r">
@@ -80,13 +83,13 @@ const Sidebar: React.FC = () => {
             triggerHandler={triggerHandler}
             text={t("sidebar-orders", "Orders")}
           />
-          <SidebarMenuItem
-            pageLink={"/a/products"}
-            icon={<TagIcon size={ICON_SIZE} />}
-            text={t("sidebar-products", "Products")}
-            triggerHandler={triggerHandler}
-          />
-          {isFeatureEnabled("product_categories") && (
+          {!isLocManager && <SidebarMenuItem
+              pageLink={"/a/products"}
+              icon={<TagIcon size={ICON_SIZE}/>}
+              text={t("sidebar-products", "Products")}
+              triggerHandler={triggerHandler}
+          />}
+          {(isFeatureEnabled("product_categories") && !isLocManager) && (
             <SidebarMenuItem
               pageLink={"/a/product-categories"}
               icon={<SwatchIcon size={ICON_SIZE} />}
@@ -94,13 +97,13 @@ const Sidebar: React.FC = () => {
               triggerHandler={triggerHandler}
             />
           )}
-          <SidebarMenuItem
-            pageLink={"/a/customers"}
-            icon={<UsersIcon size={ICON_SIZE} />}
-            triggerHandler={triggerHandler}
-            text={t("sidebar-customers", "Customers")}
-          />
-          {inventoryEnabled && (
+          {!isLocManager && <SidebarMenuItem
+              pageLink={"/a/customers"}
+              icon={<UsersIcon size={ICON_SIZE}/>}
+              triggerHandler={triggerHandler}
+              text={t("sidebar-customers", "Customers")}
+          />}
+          {(inventoryEnabled && !isLocManager) && (
             <SidebarMenuItem
               pageLink={"/a/inventory"}
               icon={<BuildingsIcon size={ICON_SIZE} />}
@@ -108,25 +111,27 @@ const Sidebar: React.FC = () => {
               text={t("sidebar-inventory", "Inventory")}
             />
           )}
-          <SidebarMenuItem
-            pageLink={"/a/discounts"}
-            icon={<SaleIcon size={ICON_SIZE} />}
-            triggerHandler={triggerHandler}
-            text={t("sidebar-discounts", "Discounts")}
-          />
-          <SidebarMenuItem
-            pageLink={"/a/gift-cards"}
-            icon={<GiftIcon size={ICON_SIZE} />}
-            triggerHandler={triggerHandler}
-            text={t("sidebar-gift-cards", "Gift Cards")}
-          />
-          <SidebarMenuItem
-            pageLink={"/a/pricing"}
-            icon={<CashIcon size={ICON_SIZE} />}
-            triggerHandler={triggerHandler}
-            text={t("sidebar-pricing", "Pricing")}
-          />
-          {getLinks().map(({ path, label, icon }, index) => {
+          {!isLocManager && <>
+              <SidebarMenuItem
+                  pageLink={"/a/discounts"}
+                  icon={<SaleIcon size={ICON_SIZE}/>}
+                  triggerHandler={triggerHandler}
+                  text={t("sidebar-discounts", "Discounts")}
+              />
+              <SidebarMenuItem
+                pageLink={"/a/gift-cards"}
+                icon={<GiftIcon size={ICON_SIZE}/>}
+                triggerHandler={triggerHandler}
+                text={t("sidebar-gift-cards", "Gift Cards")}
+            />
+            <SidebarMenuItem
+                pageLink={"/a/pricing"}
+                icon={<CashIcon size={ICON_SIZE}/>}
+                triggerHandler={triggerHandler}
+                text={t("sidebar-pricing", "Pricing")}
+            />
+          </>}
+          {!isLocManager && getLinks().map(({ path, label, icon }, index) => {
             const cleanLink = path.replace("/a/", "")
 
             const Icon = icon ? icon : SquaresPlus
@@ -141,12 +146,12 @@ const Sidebar: React.FC = () => {
               />
             )
           })}
-          <SidebarMenuItem
-            pageLink={"/a/settings"}
-            icon={<GearIcon size={ICON_SIZE} />}
-            triggerHandler={triggerHandler}
-            text={t("sidebar-settings", "Settings")}
-          />
+          {!isLocManager && <SidebarMenuItem
+              pageLink={"/a/settings"}
+              icon={<GearIcon size={ICON_SIZE}/>}
+              triggerHandler={triggerHandler}
+              text={t("sidebar-settings", "Settings")}
+          />}
         </div>
       </div>
     </div>

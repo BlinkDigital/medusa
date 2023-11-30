@@ -99,7 +99,7 @@ const UserTable: React.FC<UserTableProps> = ({
         <Table.Cell className="w-80">{user.email}</Table.Cell>
         <Table.Cell className="inter-small-semibold text-violet-60">
           {user.role.charAt(0).toUpperCase()}
-          {user.role.slice(1)}
+          {user.role.slice(1).replaceAll('_', ' ')}
         </Table.Cell>
         <Table.Cell></Table.Cell>
       </Table.Row>
@@ -222,6 +222,18 @@ const UserTable: React.FC<UserTableProps> = ({
                 (e) => e.entityType === "user" && e.entity.role === "admin"
               )
             ),
+        },
+        {
+          title: t("templates-location-manager", "Location manager"),
+          count: elements.filter(
+              (e) => e.entityType === "user" && e.entity.role === "location_manager"
+          ).length,
+          onClick: () =>
+              setShownElements(
+                  elements.filter(
+                      (e) => e.entityType === "user" && e.entity.role === "location_manager"
+                  )
+              ),
         },
         {
           title: t("templates-no-team-permissions", "No team permissions"),

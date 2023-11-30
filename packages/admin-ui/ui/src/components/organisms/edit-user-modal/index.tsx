@@ -19,6 +19,7 @@ type EditUserModalProps = {
 type EditUserModalFormData = {
   first_name: string
   last_name: string
+  location?: string
 }
 
 const EditUserModal: React.FC<EditUserModalProps> = ({
@@ -41,6 +42,14 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   }, [user])
 
   const onSubmit = (data: EditUserModalFormData) => {
+    const location = data.location
+    if(location) {
+      data['metadata'] = {
+        location_id: location
+      }
+    }
+    delete data.location
+    console.log(data)
     mutate(data, {
       onSuccess: () => {
         notification(
@@ -102,6 +111,15 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 })}
                 errors={errors}
               />
+              {user.role === 'location_manager' &&
+                  <InputField
+                      label="Location ID"
+                      value={user.metadata?.location_id as string}
+                     {...register('location', {
+                       pattern: /^(sloc_[A-Z0-9]{26})/
+                     })}
+                  />
+              }
             </div>
             <InputField
               label={t("edit-user-modal-email", "Email")}
@@ -139,6 +157,7 @@ const mapUser = (user: User): EditUserModalFormData => {
   return {
     first_name: user.first_name,
     last_name: user.last_name,
+    location: user.metadata?.location_id
   }
 }
 
