@@ -44,6 +44,13 @@ export type FormImage = {
   nativeFile?: File
 }
 
+export type FormAttachment = {
+  url: string
+  name?: string
+  size?: number
+  nativeFile?: File
+}
+
 export interface DragItem {
   index: number
   id: string
