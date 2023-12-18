@@ -9,7 +9,7 @@ import { prepareImages } from "../../../utils/images"
 import { nestedForm } from "../../../utils/nested-form"
 import Button from "../../fundamentals/button"
 import Modal from "../../molecules/modal"
-import { MediaFormType } from '../../forms/product/media-form'
+import AttachmentForm, {AttachmentFormType} from '../../forms/product/attachment-form'
 
 type Props = {
   product: Product & { attachments: FormAttachment[] }
@@ -21,7 +21,7 @@ type AttachmentFormWrapper = {
   media: AttachmentFormType
 }
 
-const MediaModal = ({ product, open, onClose }: Props) => {
+const AttachmentModal = ({ product, open, onClose }: Props) => {
   const { t } = useTranslation()
   const { onUpdate, updating } = useEditProductActions(product.id)
   const form = useForm<AttachmentFormWrapper>({
@@ -46,14 +46,14 @@ const MediaModal = ({ product, open, onClose }: Props) => {
   }
 
   const onSubmit = handleSubmit(async (data) => {
-    let preppedImages: FormImage[] = []
+    let preppedAttachments: FormAttachment[] = []
 
     try {
-      preppedImages = await prepareImages(data.media.images)
+      preppedAttachments = await prepareImages(data.media.attachments)
     } catch (error) {
       let errorMessage = t(
-        "product-media-section-upload-images-error",
-        "Something went wrong while trying to upload images."
+        "product-media-section-upload-attachments-error",
+        "Something went wrong while trying to upload attachments."
       )
       const response = (error as any).response as Response
 
@@ -74,11 +74,11 @@ const MediaModal = ({ product, open, onClose }: Props) => {
       )
       return
     }
-    const urls = preppedImages.map((image) => image.url)
+    const urls = preppedAttachments.map((attachment) => attachment.url)
 
     onUpdate(
       {
-        images: urls,
+        attachments: urls,
       },
       onReset
     )
@@ -105,7 +105,7 @@ const MediaModal = ({ product, open, onClose }: Props) => {
                 )}
               </p>
               <div>
-                <MediaForm form={nestedForm(form, "media")} />
+                <AttachmentForm form={nestedForm(form, "media")} />
               </div>
             </div>
           </Modal.Content>
@@ -139,13 +139,26 @@ const MediaModal = ({ product, open, onClose }: Props) => {
 const getDefaultValues = (product: Product & { attachments: FormAttachment[] }): AttachmentFormWrapper => {
   return {
     media: {
-      images:
+      attachments:
         product.attachments?.map((attachment) => ({
           url: attachment.url,
           selected: false,
+          name: extractFileInfoFromUrl(attachment.url),
         })) || [],
     },
   }
 }
 
-export default MediaModal
+const FileMatchRegex = /([0-9]+)-(.+)\.pdf$/;
+
+function extractFileInfoFromUrl(fileUrl: string): string {
+  const {pathname} = new URL(fileUrl);
+  const parts = pathname.split('/');
+  const fileName = parts[parts.length - 1];
+  const matches = FileMatchRegex.exec(fileName);
+  if (!matches) return fileName;
+
+  return matches[2];
+}
+
+export default AttachmentModal
