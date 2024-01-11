@@ -33,6 +33,7 @@ type AddressFormProps = {
   type: AddressType
   required?: boolean
   noTitle?: boolean
+  requiredFields?: string[]
 }
 
 const AddressForm = ({
@@ -41,6 +42,7 @@ const AddressForm = ({
   type,
   required = true,
   noTitle = false,
+  requiredFields = []
 }: AddressFormProps) => {
   const {
     register,
@@ -84,16 +86,21 @@ const AddressForm = ({
             <Input
               {...form.register(path("company"), {
                 pattern: FormValidator.whiteSpaceRule("Company"),
+                required: requiredFields?.includes('company') ? FormValidator.required('Company') : false
               })}
               placeholder={t("templates-company", "Company")}
               label={t("templates-company", "Company")}
               errors={errors}
+              required={!!requiredFields?.includes('company')}
             />
             <Input
-              {...form.register(path("phone"))}
+              {...form.register(path("phone"), {
+                required: requiredFields?.includes('phone') ? FormValidator.required('Phone') : false
+              })}
               placeholder={t("templates-phone", "Phone")}
               label={t("templates-phone", "Phone")}
               errors={errors}
+              required={!!requiredFields?.includes('phone')}
             />
           </div>
         </>
@@ -152,10 +159,12 @@ const AddressForm = ({
         <Input
           {...form.register(path("province"), {
             pattern: FormValidator.whiteSpaceRule("Province"),
+            required: requiredFields?.includes('province') ? FormValidator.required('Province') : false
           })}
           placeholder={t("templates-province", "Province")}
           label={t("templates-province", "Province")}
           errors={errors}
+          required={!!requiredFields?.includes('province')}
         />
         <Controller
           control={control}

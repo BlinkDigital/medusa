@@ -12,6 +12,7 @@ import ProductThumbnailSection from "../../../components/organisms/product-thumb
 import ProductVariantsSection from "../../../components/organisms/product-variants-section"
 import { useWidgets } from "../../../providers/widget-provider"
 import { getErrorStatus } from "../../../utils/get-error-status"
+import ProductAttachmentSection from "../../../components/organisms/product-attachment-section"
 
 const Edit = () => {
   const { id } = useParams()
@@ -83,6 +84,7 @@ const Edit = () => {
           <div className="gap-y-xsmall col-span-4 flex flex-col">
             <ProductThumbnailSection product={product} />
             <ProductMediaSection product={product} />
+            <ProductAttachmentSection product={product} />
           </div>
         </div>
       </div>

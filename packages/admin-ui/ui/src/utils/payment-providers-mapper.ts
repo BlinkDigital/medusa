@@ -62,7 +62,7 @@ const providerDescriptors: { [providerKey: string]: Option } = {
     value: "manual",
   },
   "by-invoice": {
-    label: "Per factuur",
+    label: "Op rekening",
     value: "by-invoice",
   }
 }
