@@ -28,7 +28,7 @@ export type PaginationProps = {
 export type Idable = { id: string; [x: string]: any }
 
 export type Role = {
-  value: "admin" | "member" | "developer"
+  value: "admin" | "location_manager"
   label: string
 }
 

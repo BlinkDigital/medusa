@@ -1,14 +1,15 @@
-import { User } from "@medusajs/medusa"
-import { useAdminUpdateUser } from "medusa-react"
-import React, { useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import {User} from "@medusajs/medusa"
+import {useAdminStockLocations, useAdminUpdateUser} from "medusa-react"
+import React, {useEffect} from "react"
+import {Controller, useForm} from "react-hook-form"
+import {useTranslation} from "react-i18next"
 import useNotification from "../../../hooks/use-notification"
-import { getErrorMessage } from "../../../utils/error-messages"
+import {getErrorMessage} from "../../../utils/error-messages"
 import FormValidator from "../../../utils/form-validator"
 import Button from "../../fundamentals/button"
 import InputField from "../../molecules/input"
 import Modal from "../../molecules/modal"
+import {NextSelect} from '../../molecules/select/next-select'
 
 type EditUserModalProps = {
   handleClose: () => void
@@ -18,38 +19,81 @@ type EditUserModalProps = {
 
 type EditUserModalFormData = {
   first_name: string
-  last_name: string
-  location?: string
+  last_name: string,
+  location: Record<string, string>
 }
 
 const EditUserModal: React.FC<EditUserModalProps> = ({
-  handleClose,
-  user,
-  onSuccess,
-}) => {
-  const { mutate, isLoading } = useAdminUpdateUser(user.id)
+                                                       handleClose,
+                                                       user,
+                                                       onSuccess,
+                                                     }) => {
+  const {mutate, isLoading} = useAdminUpdateUser(user.id)
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    setValue,
+    setError,
+    control,
+    formState: {errors},
   } = useForm<EditUserModalFormData>()
+
   const notification = useNotification()
-  const { t } = useTranslation()
+  const {t} = useTranslation()
+  const {stock_locations} = useAdminStockLocations()
+
+  const locationOptions = React.useMemo(() => {
+    if (!stock_locations?.length) return [];
+
+    return stock_locations.map(sL => {
+      return {
+        label: sL.name,
+        value: sL.id
+      }
+    })
+  }, [stock_locations])
 
   useEffect(() => {
     reset(mapUser(user))
   }, [user])
 
+  useEffect(() => {
+    if (user.role !== 'location_manager' || !stock_locations?.length) return;
+
+    const currentLocation = user.metadata['location_id'];
+    console.log(currentLocation, stock_locations);
+    const sL = stock_locations.find((m) => m.id === currentLocation);
+    if (!sL) {
+      notification(
+        t("edit-user-modal-error", "Error"),
+        'Location defined on user does not exist',
+        "error"
+      )
+      return;
+    }
+    setValue('location', {
+      label: sL.name,
+      value: sL.id
+    });
+  }, [stock_locations, user]);
+
   const onSubmit = (data: EditUserModalFormData) => {
-    const location = data.location
-    if(location) {
+    const location = data.location?.value;
+
+    if (user.role === 'location_manager' && !location) {
+      setError('location', {message: "a Location manager should always have a location assigned to them", type: 'custom'});
+      return;
+    }
+
+    if (location) {
       data['metadata'] = {
         location_id: location
       }
     }
+
     delete data.location
-    console.log(data)
+
     mutate(data, {
       onSuccess: () => {
         notification(
@@ -111,15 +155,31 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 })}
                 errors={errors}
               />
-              {user.role === 'location_manager' &&
-                  <InputField
-                      label="Location ID"
-                      value={user.metadata?.location_id as string}
-                     {...register('location', {
-                       pattern: /^(sloc_[A-Z0-9]{26})/
-                     })}
-                  />
-              }
+              {user.role === 'location_manager'
+                ? <Controller name="location"
+                              control={control}
+                              defaultValue={null}
+                              render={({
+                                         field: {
+                                           value,
+                                           name,
+                                           onChange,
+                                           onBlur,
+                                           ref
+                                         }
+                                       }) => {
+                                return <NextSelect
+                                  name={name}
+                                  label={t('invite-modal-location', "Location")}
+                                  placeholder={t('invite-modal-select-location', "Select location")}
+                                  onBlur={onBlur} ref={ref}
+                                  onChange={onChange}
+                                  options={locationOptions}
+                                  value={value}
+                                />
+                              }}>
+                </Controller>
+                : null}
             </div>
             <InputField
               label={t("edit-user-modal-email", "Email")}
