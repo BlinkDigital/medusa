@@ -19,6 +19,7 @@ import CustomerOrdersTable from "../../../components/templates/customer-orders-t
 import { useWidgets } from "../../../providers/widget-provider"
 import { getErrorStatus } from "../../../utils/get-error-status"
 import EditCustomerModal from "./edit"
+import RevenueTable from '../../../components/templates/revenue-table'
 
 const CustomerDetail = () => {
   const { id } = useParams()
@@ -143,6 +144,15 @@ const CustomerDetail = () => {
             </div>
           </div>
         </Section>
+        <BodyCard
+          title={t('details-revenue', 'Productafzet')}
+          subtitle={t(
+            'details-an-overview-of-revenue', 'Overzicht product afzet van {{customer}}', { customer: (customer.first_name + customer.last_name) || customer.email }
+          )}>
+          <div className="flex grow flex-col">
+            <RevenueTable customer={customer.id}/>
+          </div>
+        </BodyCard>
         <BodyCard
           title={t("details-orders", "Orders {{count}}", {
             count: customer.orders.length,

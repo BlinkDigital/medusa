@@ -24,6 +24,7 @@ import Regions from "./regions"
 import ReturnReasons from "./return-reasons"
 import Taxes from "./taxes"
 import Users from "./users"
+import {useIsLocationManager} from '../../hooks/use-is-location-manager'
 
 type SettingsCardType = {
   heading: string
@@ -170,6 +171,15 @@ const SettingsIndex = () => {
 
 const Settings = () => {
   const { getSettings } = useSettings()
+  const isLocManager = useIsLocationManager()
+
+  if(isLocManager) {
+    return (
+      <Routes>
+        <Route index element={<PersonalInformation />} />
+      </Routes>
+    )
+  }
 
   return (
     <Routes>

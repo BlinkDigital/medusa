@@ -97,13 +97,13 @@ const Sidebar: React.FC = () => {
               triggerHandler={triggerHandler}
             />
           )}
-          {!isLocManager && <SidebarMenuItem
+          <SidebarMenuItem
               pageLink={"/a/customers"}
               icon={<UsersIcon size={ICON_SIZE}/>}
               triggerHandler={triggerHandler}
               text={t("sidebar-customers", "Customers")}
-          />}
-          {(inventoryEnabled && !isLocManager) && (
+          />
+          {inventoryEnabled && (
             <SidebarMenuItem
               pageLink={"/a/inventory"}
               icon={<BuildingsIcon size={ICON_SIZE} />}
@@ -146,7 +146,7 @@ const Sidebar: React.FC = () => {
               />
             )
           })}
-          {!isLocManager && <SidebarMenuItem
+          {<SidebarMenuItem
               pageLink={"/a/settings"}
               icon={<GearIcon size={ICON_SIZE}/>}
               triggerHandler={triggerHandler}

@@ -11,6 +11,7 @@ import Table from "../../molecules/table"
 import TableContainer from "../../organisms/table-container"
 import { useCustomerColumns } from "./use-customer-columns"
 import { useCustomerFilters } from "./use-customer-filters"
+import moment from 'moment'
 
 const DEFAULT_PAGE_SIZE = 15
 
@@ -18,8 +19,11 @@ const defaultQueryProps = {
   expand: "orders",
 }
 
+const formatOrderDate = (date: Date) => moment.utc(date).local().format('DD MMM YYYY, hh:mm');
+
 const CustomerTable = () => {
   const navigate = useNavigate()
+
   const { t } = useTranslation()
 
   const {
@@ -36,9 +40,19 @@ const CustomerTable = () => {
   const { customers, isLoading, count } = useAdminCustomers(
     {
       ...queryObject,
+      expand: 'orders'
     },
     {
       keepPreviousData: true,
+      onSuccess: data => {
+        data.customers.forEach((cus) => {
+          const sortedOrders = cus.orders?.sort((a, b ) => {
+            return moment(a.created_at).isBefore(b.created_at) ? -1 : 1
+          })
+          cus['last_order_date'] = sortedOrders?.length ? formatOrderDate(sortedOrders[sortedOrders.length-1].created_at) : '-'
+          console.log(cus)
+        })
+      }
     }
   )
 

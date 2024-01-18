@@ -15,7 +15,7 @@ export class Invite extends SoftDeletableEntity {
     type: "enum",
     enum: UserRoles,
     nullable: true,
-    default: UserRoles.MEMBER,
+    default: UserRoles.ADMIN,
   })
   role: UserRoles
 

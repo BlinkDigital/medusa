@@ -6,9 +6,8 @@ import { generateEntityId } from "../utils/generate-entity-id"
 
 export enum UserRoles {
   ADMIN = "admin",
-  MEMBER = "member",
-  DEVELOPER = "developer",
-  LOCATION_MANAGER = "location_manager"
+  DEALER = "location_manager",
+  INSTALLER = "installer"
 }
 
 @Entity()
@@ -17,7 +16,7 @@ export class User extends SoftDeletableEntity {
     type: "enum",
     enum: UserRoles,
     nullable: true,
-    default: UserRoles.MEMBER,
+    default: UserRoles.ADMIN,
   })
   role: UserRoles
 

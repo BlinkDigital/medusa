@@ -10,9 +10,10 @@ import Details from "./details"
 import CustomerGroups from "./groups"
 import CustomersPageTableHeader from "./header"
 import PlusIcon from '../../components/fundamentals/icons/plus-icon'
-import {useState} from 'react'
+import React, {useState} from 'react'
 import {useTranslation} from 'react-i18next'
 import CreateCustomerModal from './modals/create-customer-modal'
+import RevenueTable from '../../components/templates/revenue-table'
 
 const CustomerIndex = () => {
   const {getWidgets} = useWidgets()
@@ -54,7 +55,12 @@ const CustomerIndex = () => {
           className="h-fit"
           actionables={actions}
         >
-          <CustomerTable/>
+          <div className="relative mb-6">
+            <CustomerTable/>
+          </div>
+
+          <h1 className="inter-xlarge-semibold text-grey-90">{t('customers-revenue-table', "Productafzet")}</h1>
+          <RevenueTable filterable />
         </BodyCard>
 
         {getWidgets("customer.list.after").map((w, index) => {

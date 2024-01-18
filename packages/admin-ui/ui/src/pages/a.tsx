@@ -24,13 +24,15 @@ import Settings from "../domain/settings"
 import { useRoutes } from "../providers/route-provider"
 import { isRoute } from "../utils/extensions"
 import { useIsLocationManager } from '../hooks/use-is-location-manager'
-import {useAdminGetSession} from 'medusa-react'
+// d
 
 const IndexPage = () => {
   const navigate = useNavigate()
   useHotkeys("g + o", () => navigate("/a/orders"))
   useHotkeys("g + p", () => navigate("/a/products"))
   const isLocManager = useIsLocationManager()
+
+  console.log(isLocManager);
 
   return (
     <PrivateRoute>
@@ -57,7 +59,6 @@ const DashboardRoutes = () => {
           <Route path="orders/*" element={<Orders />} />
           <Route path="draft-orders/*" element={<DraftOrders />} />
           <Route path="discounts/*" element={<Discounts />} />
-          <Route path="customers/*" element={<Customers />} />
           <Route path="pricing/*" element={<PriceListRoute />} />
           <Route path="settings/*" element={<Settings />} />
           <Route path="sales-channels/*" element={<SalesChannels />} />
@@ -94,6 +95,9 @@ const LocationManagerRoutes = () => {
         <Routes>
           <Route path="orders/*" element={<Orders />} />
           <Route path="draft-orders/*" element={<DraftOrders />} />
+          <Route path="inventory/*" element={<Inventory />} />
+          <Route path="customers/*" element={<Customers />} />
+          <Route path="settings/*" element={<Settings />} />
         </Routes>
       </Layout>
     </DndProvider>
