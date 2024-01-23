@@ -22,9 +22,8 @@ export interface UpdateUserInput {
 }
 
 export enum UserRole {
-  MEMBER = "member",
   ADMIN = "admin",
-  DEVELOPER = "developer",
+  DEALER = "location_manager"
 }
 
 export type FilterableUserProps = PartialPick<

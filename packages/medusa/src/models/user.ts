@@ -7,7 +7,6 @@ import { generateEntityId } from "../utils/generate-entity-id"
 export enum UserRoles {
   ADMIN = "admin",
   DEALER = "location_manager",
-  INSTALLER = "installer"
 }
 
 @Entity()

@@ -150,7 +150,7 @@ const CustomerDetail = () => {
             'details-an-overview-of-revenue', 'Overzicht product afzet van {{customer}}', { customer: (customer.first_name + customer.last_name) || customer.email }
           )}>
           <div className="flex grow flex-col">
-            <RevenueTable customer={customer.id}/>
+            <RevenueTable defaultValues={ {customers: [customer.id]} } filterable={false} />
           </div>
         </BodyCard>
         <BodyCard

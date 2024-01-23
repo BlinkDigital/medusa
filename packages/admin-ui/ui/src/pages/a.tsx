@@ -24,15 +24,12 @@ import Settings from "../domain/settings"
 import { useRoutes } from "../providers/route-provider"
 import { isRoute } from "../utils/extensions"
 import { useIsLocationManager } from '../hooks/use-is-location-manager'
-// d
 
 const IndexPage = () => {
   const navigate = useNavigate()
   useHotkeys("g + o", () => navigate("/a/orders"))
   useHotkeys("g + p", () => navigate("/a/products"))
   const isLocManager = useIsLocationManager()
-
-  console.log(isLocManager);
 
   return (
     <PrivateRoute>
@@ -54,6 +51,7 @@ const DashboardRoutes = () => {
           <Route path="oauth/:app_name" element={<Oauth />} />
           <Route path="products/*" element={<ProductsRoute />} />
           <Route path="product-categories/*" element={<ProductCategories />} />
+          <Route path="customers/*" element={<Customers />} />
           <Route path="collections/*" element={<Collections />} />
           <Route path="gift-cards/*" element={<GiftCards />} />
           <Route path="orders/*" element={<Orders />} />

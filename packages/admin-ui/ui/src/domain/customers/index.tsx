@@ -14,13 +14,15 @@ import React, {useState} from 'react'
 import {useTranslation} from 'react-i18next'
 import CreateCustomerModal from './modals/create-customer-modal'
 import RevenueTable from '../../components/templates/revenue-table'
+import {useAdminGetSession} from 'medusa-react'
 
 const CustomerIndex = () => {
   const {getWidgets} = useWidgets()
   const {t} = useTranslation()
+  const {user} = useAdminGetSession({networkMode: "offlineFirst"})
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false)
 
-  const actions= [
+  const actions = [
     {
       label: t("customers-new-customer", "New customer"),
       onClick: () => setShowAddCustomerModal(true),
@@ -76,7 +78,7 @@ const CustomerIndex = () => {
         <Spacer/>
       </div>
 
-      {showAddCustomerModal && <CreateCustomerModal handleClose={onClose} />}
+        {showAddCustomerModal && <CreateCustomerModal handleClose={onClose}/>}
     </>
   )
 }

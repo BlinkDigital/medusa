@@ -1,15 +1,15 @@
 import {useState} from 'react'
 
 export type RevenueFilters = {
-  customer?: string;
+  customers?: string[];
   category?: string;
 }
 
 export const useRevenueFilters = (defaultValues: RevenueFilters = {}) => {
   const [activeFilters, setActiveFilters] = useState(defaultValues);
 
-  const setCustomer = (customer: string) => {
-    setActiveFilters((v) => ({...v, customer}))
+  const setCustomers = (customers: string[]) => {
+    setActiveFilters((v) => ({...v, customers}))
   }
 
   const setCategory = (search: string) => {
@@ -19,6 +19,6 @@ export const useRevenueFilters = (defaultValues: RevenueFilters = {}) => {
   return {
     activeFilters,
     setCategory,
-    setCustomer
+    setCustomers
   }
 }

@@ -1,20 +1,20 @@
 import {useTranslation} from 'react-i18next'
 import {useTable,} from 'react-table'
-import {useAdminCustomers, useAdminCustomQuery} from 'medusa-react'
+import {useAdminCustomers, useAdminCustomQuery, useAdminGetSession} from 'medusa-react'
 import Table from '../../molecules/table'
 import TableContainer from '../../organisms/table-container'
 import {useRevenueColumns} from './use-revenue-columns'
 import qs from 'qs'
 import {useRevenueFilters} from './use-revenue-filters'
 import React, {useEffect, useRef} from 'react'
-import {NextSelect} from '../../molecules/select/next-select'
-import {OnChangeValue} from 'react-select'
 import {Option} from '../../../types/shared'
+import {DealerSelect} from './dealer-select'
+import {CustomerSelect} from './customer-select'
 
 
 type RevenueTableProps = {
   defaultValues?: {
-    customer?: string;
+    customers?: string[];
     category?: string;
   }
   filterable?: boolean;
@@ -22,27 +22,35 @@ type RevenueTableProps = {
 
 const RevenueTable = (props: RevenueTableProps) => {
   const {t} = useTranslation();
-  const {activeFilters, setCustomer, setCategory} = useRevenueFilters(props?.defaultValues)
+  const {activeFilters, setCustomers, setCategory} = useRevenueFilters(props?.defaultValues)
   const currentTimeout = useRef<ReturnType<typeof setTimeout>>()
+  const {user} = useAdminGetSession()
 
   // @ts-ignore
-  const {customers, isLoading: loadingCustomers} = useAdminCustomers(null, {enabled: props.filterable})
+  const {users: dealers, isLoading: isLoadingDealers} = useCustomAdminUsers('location_manager', {enabled: user && user.role === 'admin' && props.filterable})
+  // @ts-ignore
+  const {customers, isLoading: loadingCustomers} = useAdminCustomers({ user_id: user.id }, {enabled: user && user.role === "location_manager" && props.filterable})
 
   const {isLoading, data: result, refetch} = useAdminRevenue(activeFilters)
   const [columns] = useRevenueColumns()
-
-  const customerOptions: Option[] = React.useMemo(() => {
-    if (!customers?.length) return []
-
-    return customers.map((c) => ({label: (c.first_name + c.last_name) || c.email, value: c.id}))
-  }, [customers])
 
   useEffect(() => {
     refetch()
   }, [activeFilters]);
 
   const onCustomerChange = (customer?: Option) => {
-    setCustomer(customer?.value || '')
+    setCustomers([customer?.value] || [])
+  }
+
+  const setCustomersOfDealer = (selectedDealer?: Option) => {
+    const dealer = dealers?.find(d => d.id === selectedDealer?.value || '');
+    if(!dealer) {
+      setCustomers([])
+      return
+    }
+    const customers = dealer.customers.map(u => u.id);
+
+    setCustomers(customers.length ? customers : ['_'])
   }
 
   const onCategorySearch = (term: string) => {
@@ -73,14 +81,12 @@ const RevenueTable = (props: RevenueTableProps) => {
       {...getTableProps()}>
       <Table filteringOptions={props.filterable && (
         <div className='flex items-center gap-4 min-w-[280px]'>
-          <NextSelect isClearable placeholder={t('revenue-table-choose-dealer', "Kies dealer")}
-                      onChange={onCustomerChange}
-                      isLoading={loadingCustomers}
-                      options={customerOptions}
-          />
+          {user.role === "admin" ?
+            <DealerSelect onDealerChange={setCustomersOfDealer} dealers={dealers} loading={isLoadingDealers}/> :
+            <CustomerSelect loading={loadingCustomers} customers={customers} onCustomerChange={onCustomerChange}/>}
         </div>
       )}
-             enableSearch={props.filterable}
+             enableSearch={props.admin}
              handleSearch={onCategorySearch}
       >
         <Table.Head>
@@ -120,7 +126,13 @@ const RevenueTable = (props: RevenueTableProps) => {
   )
 }
 
-function useAdminRevenue(query: { customerId?: string, category?: string }, options = {}) {
+function useCustomAdminUsers(role?: 'location_manager' | 'admin', options = {}) {
+  const result = useAdminCustomQuery('/users', ['users', role], { role }, options)
+
+  return { ...result, users: (result.data as Record<string, []> | undefined)?.users || []}
+}
+
+function useAdminRevenue(query: { customerIds?: string[], category?: string }, options = {}) {
   const path = `/revenue`;
   const search = qs.stringify(query, {skipNulls: true})
   return useAdminCustomQuery(path, ['revenue', search], query, options);
