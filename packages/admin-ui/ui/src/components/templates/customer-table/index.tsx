@@ -1,7 +1,7 @@
 import { isEmpty } from "lodash"
-import { useAdminCustomers } from "medusa-react"
+import {useAdminCustomers, useAdminGetSession} from "medusa-react"
 import qs from "qs"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { usePagination, useTable } from "react-table"
@@ -12,6 +12,9 @@ import TableContainer from "../../organisms/table-container"
 import { useCustomerColumns } from "./use-customer-columns"
 import { useCustomerFilters } from "./use-customer-filters"
 import moment from 'moment'
+import {useCustomAdminUsers} from '../../../hooks/use-custom-admin-users'
+import {DealerSelect} from '../revenue-table/dealer-select'
+import {Option} from '../../../types/shared'
 
 const DEFAULT_PAGE_SIZE = 15
 
@@ -23,6 +26,9 @@ const formatOrderDate = (date: Date) => moment.utc(date).local().format('DD MMM 
 
 const CustomerTable = () => {
   const navigate = useNavigate()
+  const { user } = useAdminGetSession()
+
+  const {users: dealers, isLoading: loadingDealers} = useCustomAdminUsers('location_manager', { enabled: !!user && user.role === 'admin'})
 
   const { t } = useTranslation()
 
@@ -32,6 +38,7 @@ const CustomerTable = () => {
     setQuery: setFreeText,
     queryObject,
     representationObject,
+    setUser
   } = useCustomerFilters(location.search, defaultQueryProps)
 
   const offs = parseInt(queryObject.offset) || 0
@@ -50,7 +57,6 @@ const CustomerTable = () => {
             return moment(a.created_at).isBefore(b.created_at) ? -1 : 1
           })
           cus['last_order_date'] = sortedOrders?.length ? formatOrderDate(sortedOrders[sortedOrders.length-1].created_at) : '-'
-          console.log(cus)
         })
       }
     }
@@ -133,6 +139,10 @@ const CustomerTable = () => {
     window.history.replaceState(`/a/discounts`, "", `${`?${stringified}`}`)
   }
 
+  const onDealerChange = (dealer?: Option) => {
+    setUser(dealer?.value || null)
+  }
+
   const refreshWithFilters = () => {
     const filterObj = representationObject
 
@@ -170,6 +180,11 @@ const CustomerTable = () => {
         handleSearch={setQuery}
         searchValue={query}
         {...getTableProps()}
+        filteringOptions={user.role === 'admin' && (
+          <div className='w-[280px]'>
+            <DealerSelect onDealerChange={onDealerChange} dealers={dealers} loading={loadingDealers}/>
+          </div>
+        )}
       >
         <Table.Head>
           {headerGroups?.map((headerGroup) => (

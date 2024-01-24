@@ -3,6 +3,7 @@ import { useMemo, useReducer } from "react"
 
 type CustomerFilterAction =
   | { type: "setQuery"; payload: string | null }
+  | { type: "setUser"; payload: string | null }
   | { type: "setFilters"; payload: CustomerFilterState }
   | { type: "reset"; payload: CustomerFilterState }
   | { type: "setOffset"; payload: number }
@@ -12,10 +13,11 @@ interface CustomerFilterState {
   query?: string | null
   limit: number
   offset: number
+  user_id?: string | null,
   additionalFilters: CustomerDefaultFilters | null
 }
 
-const allowedFilters = ["q", "offset", "limit"]
+const allowedFilters = ["q", "offset", "limit", "user_id"]
 
 const reducer = (
   state: CustomerFilterState,
@@ -33,6 +35,13 @@ const reducer = (
         ...state,
         offset: 0, // reset offset when query changes
         query: action.payload,
+      }
+    }
+    case "setUser": {
+      return {
+        ...state,
+        offset: 0,
+        user_id: action.payload
       }
     }
     case "setOffset": {
@@ -92,6 +101,7 @@ export const useCustomerFilters = (
         ...state,
         offset: 0,
         query: null,
+        user_id: null
       },
     })
   }
@@ -104,9 +114,19 @@ export const useCustomerFilters = (
     dispatch({ type: "setQuery", payload: queryString })
   }
 
+  const setUser = (userId: string | null) => {
+    dispatch({ type: "setUser", payload: userId})
+  }
+
   const getQueryObject = () => {
     const toQuery: any = { ...state.additionalFilters }
     for (const [key, value] of Object.entries(state)) {
+      if(key === "user_id") {
+        if (value && typeof value === "string") {
+          toQuery["user_id"] = value
+        }
+        continue
+      }
       if (key === "query") {
         if (value && typeof value === "string") {
           toQuery["q"] = value
@@ -129,11 +149,17 @@ export const useCustomerFilters = (
 
     const toQuery: any = {}
     for (const [key, value] of Object.entries(objToUse)) {
+      if(key === "user_id") {
+        if (value && typeof value === "string") {
+          toQuery["user_id"] = value
+        }
+        continue
+      }
       if (key === "query") {
         if (value && typeof value === "string") {
           toQuery["q"] = value
         }
-      } else if (key === "offset" || key === "limit") {
+      } else if (key === "offset" || key === "limit" || key === "user_id") {
         toQuery[key] = value
       }
     }
@@ -162,6 +188,7 @@ export const useCustomerFilters = (
     getQueryObject,
     getQueryString,
     setQuery,
+    setUser,
     setFilters,
     setDefaultFilters,
     reset,
@@ -198,6 +225,12 @@ const parseQueryString = (
           case "q": {
             if (typeof value === "string") {
               defaultVal.query = value
+            }
+            break
+          }
+          case "user_id": {
+            if(typeof value === "string") {
+              defaultVal.user_id = value
             }
             break
           }

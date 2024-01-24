@@ -10,6 +10,7 @@ import React, {useEffect, useRef} from 'react'
 import {Option} from '../../../types/shared'
 import {DealerSelect} from './dealer-select'
 import {CustomerSelect} from './customer-select'
+import {useCustomAdminUsers} from '../../../hooks/use-custom-admin-users'
 
 
 type RevenueTableProps = {
@@ -26,7 +27,6 @@ const RevenueTable = (props: RevenueTableProps) => {
   const currentTimeout = useRef<ReturnType<typeof setTimeout>>()
   const {user} = useAdminGetSession()
 
-  // @ts-ignore
   const {users: dealers, isLoading: isLoadingDealers} = useCustomAdminUsers('location_manager', {enabled: user && user.role === 'admin' && props.filterable})
   // @ts-ignore
   const {customers, isLoading: loadingCustomers} = useAdminCustomers({ user_id: user.id }, {enabled: user && user.role === "location_manager" && props.filterable})
@@ -124,12 +124,6 @@ const RevenueTable = (props: RevenueTableProps) => {
 
     </TableContainer>
   )
-}
-
-function useCustomAdminUsers(role?: 'location_manager' | 'admin', options = {}) {
-  const result = useAdminCustomQuery('/users', ['users', role], { role }, options)
-
-  return { ...result, users: (result.data as Record<string, []> | undefined)?.users || []}
 }
 
 function useAdminRevenue(query: { customerIds?: string[], category?: string }, options = {}) {
