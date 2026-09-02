@@ -2812,10 +2812,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^8.0.2":
-  version: 8.1.0
-  resolution: "@faker-js/faker@npm:8.1.0"
-  checksum: e930fdebe46414174093f534418836e0fdd70c027caa25fbd2fa816f62f855616238402270c5a0033df987da8e8c97029820997788f1d6115ff1b7dc635bd00d
+"@faker-js/faker@npm:^10.5.0":
+  version: 10.5.0
+  resolution: "@faker-js/faker@npm:10.5.0"
+  checksum: 2de3c7b8f41592d52cefc3ab4c99536656249bca78d5ad184a3b7ac43ecc9d946056cef2c4d37060373ef06ad992d82530de08479fabe16fdbe77b911d842446
   languageName: node
   linkType: hard
 
@@ -20039,7 +20039,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ui@workspace:apps/ui"
   dependencies:
-    "@faker-js/faker": ^8.0.2
+    "@faker-js/faker": ^10.5.0
     "@medusajs/icons": latest
     "@medusajs/ui": latest
     "@medusajs/ui-preset": latest
