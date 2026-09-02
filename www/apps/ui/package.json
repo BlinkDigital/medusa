@@ -13,7 +13,7 @@
     "lint:content": "eslint --no-eslintrc -c .content.eslintrc.js src/content/docs --fix"
   },
   "dependencies": {
-    "@faker-js/faker": "^8.0.2",
+    "@faker-js/faker": "^10.5.0",
     "@medusajs/icons": "latest",
     "@medusajs/ui": "latest",
     "@medusajs/ui-preset": "latest",
