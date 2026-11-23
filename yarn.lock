@@ -6078,7 +6078,7 @@ __metadata:
     emoji-picker-react: ^4.4.3
     framer-motion: ^9.1.6
     html-webpack-plugin: ^5.5.1
-    i18next: ^22.5.0
+    i18next: ^26.3.4
     i18next-browser-languagedetector: ^7.0.1
     i18next-http-backend: ^2.2.1
     i18next-parser: ^8.0.0
@@ -26101,21 +26101,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:^22.5.0":
-  version: 22.5.1
-  resolution: "i18next@npm:22.5.1"
-  dependencies:
-    "@babel/runtime": ^7.20.6
-  checksum: a284f8d805ebad77114a830e60d5c59485a7f4d45179761f877249b63035572cff4103e5b4702669dff1a0e03b4e8b6df377bc871935f8215e43fd97e8e9e910
-  languageName: node
-  linkType: hard
-
 "i18next@npm:^23.5.1":
   version: 23.5.1
   resolution: "i18next@npm:23.5.1"
   dependencies:
     "@babel/runtime": ^7.22.5
   checksum: af49c399a90505ae26c1a022d06c4a11c4adcde6524b31c315dcaa43443c85892adef6de934b2af737abbdd2ffa66449d2854f135af8691223a8bb4ffaf6e1af
+  languageName: node
+  linkType: hard
+
+"i18next@npm:^26.3.4":
+  version: 26.3.4
+  resolution: "i18next@npm:26.3.4"
+  peerDependencies:
+    typescript: ^5 || ^6
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 09b2e578660b1cdcb284ed00e1f1c8559871fa66cbf85e58f9b78bf782e3b575341f0668ca7230fc80d30104bec42f8ac3ac221096d0f6e6bfbf18255dcccc94
   languageName: node
   linkType: hard
 
